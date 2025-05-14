@@ -1,5 +1,5 @@
 {
-  "name": "config-cli",
+  "name": "@javalce/config",
   "version": "0.0.1",
   "description": "A CLI to bootstrap ESLint and Prettier using my configurations",
   "keywords": [
@@ -33,6 +33,7 @@
   "scripts": {
     "build": "tsup",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -t v -p angular",
+    "dev": "tsx src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -42,12 +43,20 @@
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
   },
+  "dependencies": {
+    "@clack/prompts": "^0.10.1",
+    "commander": "^13.1.0",
+    "fs-extra": "^11.3.0",
+    "local-pkg": "^1.1.1",
+    "picocolors": "^1.1.1"
+  },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@commitlint/types": "^19.8.1",
     "@javalce/eslint-config": "^0.11.4",
     "@javalce/prettier-config": "^2.1.0",
+    "@types/node": "^22.15.18",
     "bumpp": "^10.1.0",
     "conventional-changelog-cli": "^5.0.0",
     "eslint": "^9.26.0",
@@ -55,6 +64,7 @@
     "lint-staged": "^16.0.0",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   },
   "publishConfig": {
