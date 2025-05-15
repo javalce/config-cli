@@ -1,3 +1,11 @@
+import path from 'node:path';
+
+import * as p from '@clack/prompts';
+import { execa } from 'execa';
+import fs from 'fs-extra';
+
+import { handleCancellation } from './prompt';
+
 export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
 export function getPackageManager(): PackageManager {
@@ -16,4 +24,37 @@ export function getPackageManager(): PackageManager {
   }
 
   return 'npm';
+}
+
+export async function getPackageJson(): Promise<Record<string, unknown>> {
+  try {
+    const packageJson = await fs.readFile(path.join(process.cwd(), 'package.json'), {
+      encoding: 'utf-8',
+    });
+
+    return JSON.parse(packageJson) as Record<string, unknown>;
+  } catch {
+    p.log.error('The package.json file was not found');
+    handleCancellation();
+  }
+}
+
+export async function isPackageTypeModule(): Promise<boolean> {
+  const packageJson = await getPackageJson();
+
+  return packageJson.type === 'module';
+}
+
+export async function installDependencies(deps: string[]): Promise<void> {
+  const packageManager = getPackageManager();
+  const spinner = p.spinner();
+
+  try {
+    spinner.start('Installing missing dependencies...');
+    await execa(packageManager, [packageManager === 'npm' ? 'install' : 'add', '-D', ...deps]);
+    spinner.stop();
+  } catch {
+    spinner.stop();
+    handleCancellation();
+  }
 }
