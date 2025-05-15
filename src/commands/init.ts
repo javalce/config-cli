@@ -2,7 +2,7 @@ import * as p from '@clack/prompts';
 import { Command } from 'commander';
 import colors from 'picocolors';
 
-import { getPkgManager } from '@/utils/npm';
+import { getPackageManager } from '@/utils/npm';
 import { handleCancellation } from '@/utils/prompt';
 
 export const init = new Command()
@@ -47,7 +47,7 @@ export const init = new Command()
     if (p.isCancel(shouldInstallDependencies)) handleCancellation();
 
     let doneMessage = 'Done! Now run:\n';
-    const pkgManager = getPkgManager();
+    const pkgManager = getPackageManager();
 
     if (!shouldInstallDependencies) {
       doneMessage += `\n  ${pkgManager} install`;
