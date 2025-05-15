@@ -16,7 +16,7 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   {
     label: 'Next.js',
     value: 'next',
-    color: colors.gray,
+    color: colors.fg(240),
   },
   {
     label: 'Vue',
@@ -26,7 +26,7 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   {
     label: 'Svelte',
     value: 'svelte',
-    color: colors.yellow,
+    color: colors.fg(202),
   },
   {
     label: 'SolidJS',
@@ -36,7 +36,7 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   {
     label: 'Astro',
     value: 'astro',
-    color: colors.whiteBright,
+    color: colors.fg(250),
   },
 ];
 
