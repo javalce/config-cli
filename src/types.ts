@@ -15,3 +15,9 @@ export interface TestingFrameworkOptions {
   value: TestingFramework;
   color: ColorFunc;
 }
+
+export interface EslintOptions {
+  framework: Framework | null;
+  testing: TestingFramework | null;
+  lib: boolean;
+}

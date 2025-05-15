@@ -2,6 +2,7 @@ import * as p from '@clack/prompts';
 import { Command } from 'commander';
 import colors from 'picocolors';
 
+import { getDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager } from '@/utils/npm';
 import { handleCancellation } from '@/utils/prompt';
 
@@ -27,16 +28,24 @@ export const init = new Command()
     const shouldConfigurePrettier =
       selectedTools === 'eslint-prettier' || selectedTools === 'prettier';
 
+    const deps: string[] = [];
+
     if (shouldConfigureEslint) {
       p.log.step('Configuring ESLint...');
 
-      p.log.success('ESLint configuration complete!');
+      const eslintOptions = await getEslintOptions();
+
+      deps.push(...getDependencies(eslintOptions));
+
+      p.log.step('Generating ESLint config file...');
+
+      await writeEslintConfig(eslintOptions);
     }
 
     if (shouldConfigurePrettier) {
       p.log.step('Configuring Prettier...');
 
-      p.log.success('Prettier configuration complete!');
+      p.log.success(colors.green('Prettier configuration complete!'));
     }
 
     const shouldInstallDependencies = await p.confirm({
