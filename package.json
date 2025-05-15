@@ -39,6 +39,7 @@
   "dependencies": {
     "@clack/prompts": "^0.10.1",
     "commander": "^13.1.0",
+    "execa": "^9.5.3",
     "fs-extra": "^11.3.0",
     "local-pkg": "^1.1.1",
     "picocolors": "^1.1.1"
@@ -49,6 +50,7 @@
     "@commitlint/types": "^19.8.1",
     "@javalce/eslint-config": "^0.11.4",
     "@javalce/prettier-config": "^2.1.0",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.15.18",
     "bumpp": "^10.1.0",
     "conventional-changelog-cli": "^5.0.0",
