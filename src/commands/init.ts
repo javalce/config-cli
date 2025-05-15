@@ -2,8 +2,6 @@ import * as p from '@clack/prompts';
 import { Command } from 'commander';
 import colors from 'picocolors';
 
-import { configureEslint } from './eslint';
-
 import { getPkgManager } from '@/utils/npm';
 import { handleCancellation } from '@/utils/prompt';
 
@@ -31,15 +29,13 @@ export const init = new Command()
 
     if (shouldConfigureEslint) {
       p.log.step('Configuring ESLint...');
-      await configureEslint();
+
       p.log.success('ESLint configuration complete!');
     }
 
     if (shouldConfigurePrettier) {
       p.log.step('Configuring Prettier...');
-      // Add Prettier configuration logic here
-      // For example, create a .prettierrc file or update package.json
-      // with Prettier settings.
+
       p.log.success('Prettier configuration complete!');
     }
 

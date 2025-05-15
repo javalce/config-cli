@@ -5,7 +5,7 @@ import * as p from '@clack/prompts';
 import { FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/consts';
 import { handleCancellation } from '@/utils/prompt';
 
-async function getEslintOptions(): Promise<{
+export async function getEslintOptions(): Promise<{
   framework: Framework | null;
   testingFramework: TestingFramework | null;
   lib: boolean;
@@ -65,8 +65,4 @@ async function getEslintOptions(): Promise<{
     testingFramework,
     lib,
   };
-}
-
-export async function configureEslint(): Promise<void> {
-  const { framework, testingFramework, lib } = await getEslintOptions();
 }
