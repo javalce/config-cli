@@ -93,7 +93,10 @@ export function getDependencies({ framework, testing }: EslintOptions): string[]
   return Array.from(deps);
 }
 
-export async function writeEslintConfig({ framework, testing, lib }: EslintOptions): Promise<void> {
+export async function writeEslintConfig(
+  { framework, testing, lib }: EslintOptions,
+  dryRun: boolean,
+): Promise<void> {
   const isESModule = await isPackageTypeModule();
   const configFilename = isESModule ? 'eslint.config.js' : 'eslint.config.mjs';
 
@@ -131,7 +134,11 @@ export default defineConfig({
 ${configContent}
 });`.trimStart();
 
-  await fs.writeFile(configFilename, config);
+  if (dryRun) {
+    p.note(colors.blue(config));
+  } else {
+    await fs.writeFile(configFilename, config);
+  }
 
   p.log.success(colors.green(`Created ${configFilename}`));
 }

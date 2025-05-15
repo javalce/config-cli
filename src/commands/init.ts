@@ -1,16 +1,28 @@
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import { Command } from 'commander';
+import { z } from 'zod';
 
 import { getDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
-import { getPackageManager } from '@/utils/npm';
+import { getPackageManager, installDependencies } from '@/utils/npm';
 import { handleCancellation } from '@/utils/prompt';
+
+const optionsSchema = z.object({
+  dryRun: z.boolean().default(false),
+});
 
 export const init = new Command()
   .name('init')
   .description('Bootstrap ESLint and Prettier configuration')
-  .action(async () => {
+  .option('--dry-run', 'Show what will be done without making any changes')
+  .action(async (opts) => {
+    const { dryRun } = await optionsSchema.parseAsync(opts);
+
     p.intro(colors.bgCyan(' Welcome to the ESLint and Prettier configuration wizard! '));
+
+    if (dryRun) {
+      p.log.warn(colors.bold.yellow('Dry run mode enabled'));
+    }
 
     const selectedTools = await p.select({
       message: 'Select the tools you want to configure',
@@ -39,7 +51,7 @@ export const init = new Command()
 
       p.log.step('Generating ESLint config file...');
 
-      await writeEslintConfig(eslintOptions);
+      await writeEslintConfig(eslintOptions, dryRun);
     }
 
     if (shouldConfigurePrettier) {
@@ -48,17 +60,27 @@ export const init = new Command()
       p.log.success(colors.green('Prettier configuration complete!'));
     }
 
-    const shouldInstallDependencies = await p.confirm({
-      message: 'Would you like to install the dependencies now?',
-      initialValue: true,
-    });
+    let showInstallMessage = false;
 
-    if (p.isCancel(shouldInstallDependencies)) handleCancellation();
+    if (!dryRun) {
+      const shouldInstallDependencies = await p.confirm({
+        message: 'Would you like to install the dependencies now?',
+        initialValue: true,
+      });
+
+      if (p.isCancel(shouldInstallDependencies)) handleCancellation();
+
+      if (shouldInstallDependencies) {
+        await installDependencies(deps);
+      } else {
+        showInstallMessage = true;
+      }
+    }
 
     let doneMessage = 'Done! Now run:\n';
     const pkgManager = getPackageManager();
 
-    if (!shouldInstallDependencies) {
+    if (showInstallMessage) {
       doneMessage += `\n  ${pkgManager} install`;
     }
 

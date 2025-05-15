@@ -42,7 +42,8 @@
     "commander": "^13.1.0",
     "execa": "^9.5.3",
     "fs-extra": "^11.3.0",
-    "local-pkg": "^1.1.1"
+    "local-pkg": "^1.1.1",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
