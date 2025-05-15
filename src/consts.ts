@@ -5,7 +5,7 @@ import type {
   TestingFrameworkOptions,
 } from './types';
 
-import colors from 'picocolors';
+import colors from 'ansis';
 
 export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   {
@@ -16,7 +16,7 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   {
     label: 'Next.js',
     value: 'next',
-    color: colors.blackBright,
+    color: colors.gray,
   },
   {
     label: 'Vue',

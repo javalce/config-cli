@@ -1,8 +1,8 @@
 import type { EslintOptions, Framework, TestingFramework } from '@/types';
 
 import * as p from '@clack/prompts';
+import colors from 'ansis';
 import fs from 'fs-extra';
-import colors from 'picocolors';
 
 import { DEPENDENCIES_MAP, FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/consts';
 import { handleCancellation } from '@/utils/prompt';

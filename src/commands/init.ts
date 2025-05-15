@@ -1,6 +1,6 @@
 import * as p from '@clack/prompts';
+import colors from 'ansis';
 import { Command } from 'commander';
-import colors from 'picocolors';
 
 import { getDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager } from '@/utils/npm';
