@@ -67,7 +67,7 @@ export async function getEslintOptions(): Promise<EslintOptions> {
   };
 }
 
-export function getDependencies({ framework, testing }: EslintOptions): string[] {
+export function getEslintDependencies({ framework, testing }: EslintOptions): string[] {
   const deps = new Set<string>(['eslint', '@javalce/eslint-config']);
   let addTestingLibrary = false;
 

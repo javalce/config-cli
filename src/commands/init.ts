@@ -3,7 +3,7 @@ import colors from 'ansis';
 import { Command } from 'commander';
 import { z } from 'zod';
 
-import { getDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
+import { getEslintDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager, installDependencies } from '@/utils/npm';
 import { getPrettierOptions, writePrettierConfig, writePrettierignore } from '@/utils/prettier';
 import { handleCancellation } from '@/utils/prompt';
@@ -48,7 +48,7 @@ export const init = new Command()
 
       const eslintOptions = await getEslintOptions();
 
-      deps.push(...getDependencies(eslintOptions));
+      deps.push(...getEslintDependencies(eslintOptions));
 
       p.log.step('Generating ESLint config file...');
 
