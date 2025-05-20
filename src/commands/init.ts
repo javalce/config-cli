@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { getDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager, installDependencies } from '@/utils/npm';
+import { getPrettierOptions, writePrettierConfig, writePrettierignore } from '@/utils/prettier';
 import { handleCancellation } from '@/utils/prompt';
 
 const optionsSchema = z.object({
@@ -56,6 +57,13 @@ export const init = new Command()
 
     if (shouldConfigurePrettier) {
       p.log.step('Configuring Prettier...');
+
+      const prettierOptions = await getPrettierOptions();
+
+      p.log.step('Generating Prettier config files...');
+
+      await writePrettierConfig(prettierOptions, dryRun);
+      await writePrettierignore(dryRun);
 
       p.log.success(colors.green('Prettier configuration complete!'));
     }
