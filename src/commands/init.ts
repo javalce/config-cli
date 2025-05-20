@@ -42,11 +42,14 @@ export const init = new Command()
       selectedTools === 'eslint-prettier' || selectedTools === 'prettier';
 
     const deps: string[] = [];
+    let isUsingAstro = false;
 
     if (shouldConfigureEslint) {
       p.log.step('Configuring ESLint...');
 
       const eslintOptions = await getEslintOptions();
+
+      isUsingAstro = eslintOptions.framework === 'astro';
 
       deps.push(...getEslintDependencies(eslintOptions));
 
@@ -58,7 +61,7 @@ export const init = new Command()
     if (shouldConfigurePrettier) {
       p.log.step('Configuring Prettier...');
 
-      const prettierOptions = await getPrettierOptions();
+      const prettierOptions = await getPrettierOptions(isUsingAstro);
 
       p.log.step('Generating Prettier config files...');
 

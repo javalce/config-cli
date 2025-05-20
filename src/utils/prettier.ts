@@ -3,11 +3,12 @@ import type { PrettierOptions } from '@/types';
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
+import prettier from 'prettier';
 
 import { isPackageTypeModule } from './npm';
 import { handleCancellation } from './prompt';
 
-export async function getPrettierOptions(): Promise<PrettierOptions> {
+export async function getPrettierOptions(astro: boolean): Promise<PrettierOptions> {
   const tailwind = await p.confirm({
     message: 'Are you using Tailwind CSS?',
     initialValue: true,
@@ -17,33 +18,62 @@ export async function getPrettierOptions(): Promise<PrettierOptions> {
 
   return {
     tailwind,
+    astro,
   };
 }
 
 export async function writePrettierConfig(
-  { tailwind }: PrettierOptions,
+  { tailwind, astro }: PrettierOptions,
   dryRun: boolean,
 ): Promise<void> {
   const isESModule = await isPackageTypeModule();
-  const configFilename = isESModule ? 'prettier.config.js' : 'prettier.config.mjs';
-  const configLines: string[] = [];
+  const configFilename = isESModule ? 'prettier.config.mjs' : 'prettier.config.js';
+  const plugins: string[] = [
+    ...(astro ? ['prettier-plugin-astro'] : []),
+    ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
+  ];
 
-  if (tailwind) {
-    configLines.push("plugins: ['prettier-plugin-tailwindcss'],");
+  let configContent = '';
+
+  if (plugins.length > 0) {
+    configContent += `plugins: [${plugins.map((p) => `'${p}'`).join(', ')}],\n`;
   }
 
-  const configContent = configLines.map((line) => `  ${line}`).join('\n');
+  if (astro) {
+    configContent += `overrides: [
+  {
+    files: ['*.astro'],
+    options: { parser: 'astro' },
+  }
+],\n`;
+  }
+
   const config = `
-import  { defineConfig } from '@javalce/prettier-config';
+import { defineConfig } from '@javalce/prettier-config';
 
 export default defineConfig({
 ${configContent}
-});`.trimStart();
+});
+`.trim();
+
+  const formattedConfig = await prettier.format(config, {
+    printWidth: 100,
+    tabWidth: 2,
+    useTabs: false,
+    endOfLine: 'lf',
+    trailingComma: 'all',
+    semi: true,
+    singleQuote: true,
+    jsxSingleQuote: true,
+    bracketSpacing: true,
+    arrowParens: 'always',
+    parser: 'espree',
+  });
 
   if (dryRun) {
-    p.note(colors.blue(config));
+    p.note(colors.blue(formattedConfig));
   } else {
-    await fs.writeFile(configFilename, config);
+    await fs.writeFile(configFilename, formattedConfig);
   }
 }
 
