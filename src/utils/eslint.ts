@@ -7,6 +7,7 @@ import fs from 'fs-extra';
 import { DEPENDENCIES_MAP, FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/consts';
 import { handleCancellation } from '@/utils/prompt';
 
+import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
 
 export async function getEslintOptions(): Promise<EslintOptions> {
@@ -100,33 +101,32 @@ export async function writeEslintConfig(
   const isESModule = await isPackageTypeModule();
   const configFilename = isESModule ? 'eslint.config.js' : 'eslint.config.mjs';
 
-  const configLines: string[] = [];
+  let configContent = '';
 
   const hasTsEslinConfig = await fs.exists('tsconfig.eslint.json');
   const hasTsAppConfig = await fs.exists('tsconfig.app.json');
   const hasTsNodeConfig = await fs.exists('tsconfig.node.json');
 
   if (!hasTsEslinConfig && hasTsAppConfig && hasTsNodeConfig) {
-    configLines.push("typescript: ['tsconfig.node.json', 'tsconfig.app.json'],");
+    configContent += "typescript: ['tsconfig.node.json', 'tsconfig.app.json'],";
   }
 
   if (framework) {
     if (framework === 'next') {
-      configLines.push('react: true,');
+      configContent += 'react: true,';
     }
 
-    configLines.push(`${framework}: true,`);
+    configContent += `${framework}: true,`;
   }
 
   if (testing) {
-    configLines.push(`testing: ${testing},`);
+    configContent += `testing: ${testing},`;
   }
 
   if (lib) {
-    configLines.push(`type: 'lib',`);
+    configContent += `type: 'lib',`;
   }
 
-  const configContent = configLines.map((line) => `  ${line}`).join('\n');
   const config = `
 import { defineConfig } from '@javalce/eslint-config';
 
@@ -134,10 +134,12 @@ export default defineConfig({
 ${configContent}
 });`.trimStart();
 
+  const formattedConfig = await formatConfigFile(config);
+
   if (dryRun) {
-    p.note(colors.blue(config));
+    p.note(colors.blue(formattedConfig));
   } else {
-    await fs.writeFile(configFilename, config);
+    await fs.writeFile(configFilename, formattedConfig);
   }
 
   p.log.success(colors.green(`Created ${configFilename}`));

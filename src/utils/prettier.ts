@@ -3,8 +3,8 @@ import type { PrettierOptions } from '@/types';
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
-import prettier from 'prettier';
 
+import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
 import { handleCancellation } from './prompt';
 
@@ -56,19 +56,7 @@ ${configContent}
 });
 `.trim();
 
-  const formattedConfig = await prettier.format(config, {
-    printWidth: 100,
-    tabWidth: 2,
-    useTabs: false,
-    endOfLine: 'lf',
-    trailingComma: 'all',
-    semi: true,
-    singleQuote: true,
-    jsxSingleQuote: true,
-    bracketSpacing: true,
-    arrowParens: 'always',
-    parser: 'espree',
-  });
+  const formattedConfig = await formatConfigFile(config);
 
   if (dryRun) {
     p.note(colors.blue(formattedConfig));
