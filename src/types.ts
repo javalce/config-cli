@@ -21,3 +21,7 @@ export interface EslintOptions {
   testing: TestingFramework | null;
   lib: boolean;
 }
+
+export interface PrettierOptions {
+  tailwind: boolean;
+}
