@@ -1,21 +1,10 @@
-import prettier, { type Options } from 'prettier';
-
-const prettierOptions: Options = {
-  printWidth: 100,
-  tabWidth: 2,
-  useTabs: false,
-  endOfLine: 'lf',
-  trailingComma: 'all',
-  semi: true,
-  singleQuote: true,
-  jsxSingleQuote: true,
-  bracketSpacing: true,
-  arrowParens: 'always',
-};
+import { defineConfig } from '@javalce/prettier-config';
+import prettier from 'prettier';
 
 export async function formatConfigFile(config: string): Promise<string> {
-  return prettier.format(config, {
-    ...prettierOptions,
+  const prettierOptions = defineConfig({
     parser: 'espree',
   });
+
+  return prettier.format(config, prettierOptions);
 }
