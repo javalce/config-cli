@@ -9,6 +9,11 @@ import colors from 'ansis';
 
 export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   {
+    label: 'None',
+    value: null,
+    color: colors.white,
+  },
+  {
     label: 'React',
     value: 'react',
     color: colors.cyan,
@@ -41,6 +46,11 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
 ];
 
 export const TESTING_FRAMEWORK_OPTIONS: TestingFrameworkOptions[] = [
+  {
+    label: 'None',
+    value: null,
+    color: colors.white,
+  },
   {
     label: 'Jest',
     value: 'jest',

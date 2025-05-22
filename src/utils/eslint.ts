@@ -1,71 +1,44 @@
-import type { EslintOptions, Framework, TestingFramework } from '@/types';
+import type { EslintOptions } from '@/types';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
 
 import { DEPENDENCIES_MAP, FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/consts';
-import { handleCancellation } from '@/utils/prompt';
 
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
+import { handleCancellation } from './prompt';
 
 export async function getEslintOptions(): Promise<EslintOptions> {
-  const shouldAddFramework = await p.confirm({
-    message: 'Are you using a framework?',
-    initialValue: true,
-  });
-
-  if (p.isCancel(shouldAddFramework)) handleCancellation();
-
-  let framework: Framework | null = null;
-
-  if (shouldAddFramework) {
-    const selectedFramework = await p.select<Framework>({
-      message: 'Select a framework',
-      options: FRAMEWORK_OPTIONS.map(({ label, value, color }) => ({
-        label: color(label),
-        value,
-      })),
-    });
-
-    if (p.isCancel(selectedFramework)) handleCancellation();
-
-    framework = selectedFramework;
-  }
-
-  const shouldAddTesting = await p.confirm({
-    message: 'Do you want to add a testing framework?',
-    initialValue: false,
-  });
-
-  if (p.isCancel(shouldAddTesting)) handleCancellation();
-  let testing: TestingFramework | null = null;
-
-  if (shouldAddTesting) {
-    const selectedFramework = await p.select({
-      message: 'Select a testing framework',
-      options: TESTING_FRAMEWORK_OPTIONS.map(({ label, value, color }) => ({
-        label: color(label),
-        value,
-      })),
-    });
-
-    if (p.isCancel(selectedFramework)) handleCancellation();
-    testing = selectedFramework;
-  }
-  const lib = await p.confirm({
-    message: 'Is this a library?',
-    initialValue: false,
-  });
-
-  if (p.isCancel(lib)) handleCancellation();
-
-  return {
-    framework,
-    testing,
-    lib,
-  };
+  return p.group(
+    {
+      framework: () =>
+        p.select({
+          message: 'Select a framework',
+          options: FRAMEWORK_OPTIONS.map(({ label, value, color }) => ({
+            label: color(label),
+            value,
+          })),
+        }),
+      testing: () =>
+        p.select({
+          message: 'Select a testing framework',
+          options: TESTING_FRAMEWORK_OPTIONS.map(({ label, value, color }) => ({
+            label: color(label),
+            value,
+          })),
+        }),
+      lib: () =>
+        p.confirm({
+          message: 'Are you building a library?',
+          initialValue: false,
+        }),
+    },
+    {
+      onCancel: handleCancellation,
+    },
+  );
 }
 
 export function getEslintDependencies({ framework, testing }: EslintOptions): string[] {

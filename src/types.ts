@@ -6,13 +6,13 @@ type ColorFunc = (str: string | number) => string;
 
 export interface FrameworkOptions {
   label: string;
-  value: Framework;
+  value: Framework | null;
   color: ColorFunc;
 }
 
 export interface TestingFrameworkOptions {
   label: string;
-  value: TestingFramework;
+  value: TestingFramework | null;
   color: ColorFunc;
 }
 
