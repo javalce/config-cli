@@ -7,6 +7,7 @@ import { getEslintDependencies, getEslintOptions, writeEslintConfig } from '@/ut
 import { getPackageManager, installDependencies } from '@/utils/npm';
 import { getPrettierOptions, writePrettierConfig, writePrettierignore } from '@/utils/prettier';
 import { handleCancellation } from '@/utils/prompt';
+import { updateVscodeSettings } from '@/utils/vscode';
 
 const optionsSchema = z.object({
   dryRun: z.boolean().default(false),
@@ -43,6 +44,7 @@ export const init = new Command()
 
     const deps: string[] = [];
     let isUsingAstro = false;
+    let isUsingTailwind = false;
 
     if (shouldConfigureEslint) {
       p.log.step('Configuring ESLint...');
@@ -62,6 +64,8 @@ export const init = new Command()
       p.log.step('Configuring Prettier...');
 
       const prettierOptions = await getPrettierOptions(isUsingAstro);
+
+      isUsingTailwind = prettierOptions.tailwind;
 
       p.log.step('Generating Prettier config files...');
 
@@ -86,6 +90,16 @@ export const init = new Command()
       } else {
         showInstallMessage = true;
       }
+    }
+
+    const shouldUpdateVscodeSettings = await p.confirm({
+      message: 'Would you like to update your VSCode settings?',
+      initialValue: true,
+    });
+
+    if (p.isCancel(shouldUpdateVscodeSettings)) handleCancellation();
+    if (shouldUpdateVscodeSettings) {
+      await updateVscodeSettings({ tailwind: isUsingTailwind, astro: isUsingAstro }, dryRun);
     }
 
     let doneMessage = 'Done! Now run:\n';
