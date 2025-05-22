@@ -1,4 +1,4 @@
-import type { PrettierOptions } from '@/types';
+import type { Framework, PrettierOptions } from '@/types';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
@@ -8,7 +8,7 @@ import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
 import { handleCancellation } from './prompt';
 
-export async function getPrettierOptions(astro: boolean): Promise<PrettierOptions> {
+export async function getPrettierOptions(framework: Framework | null): Promise<PrettierOptions> {
   const tailwind = await p.confirm({
     message: 'Are you using Tailwind CSS?',
     initialValue: true,
@@ -18,18 +18,19 @@ export async function getPrettierOptions(astro: boolean): Promise<PrettierOption
 
   return {
     tailwind,
-    astro,
+    framework,
   };
 }
 
 export async function writePrettierConfig(
-  { tailwind, astro }: PrettierOptions,
+  { tailwind, framework }: PrettierOptions,
   dryRun: boolean,
 ): Promise<void> {
   const isESModule = await isPackageTypeModule();
   const configFilename = isESModule ? 'prettier.config.mjs' : 'prettier.config.js';
+  const isUsingAstro = framework === 'astro';
   const plugins: string[] = [
-    ...(astro ? ['prettier-plugin-astro'] : []),
+    ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
     ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
   ];
 
@@ -39,7 +40,20 @@ export async function writePrettierConfig(
     configContent += `plugins: [${plugins.map((p) => `'${p}'`).join(', ')}],\n`;
   }
 
-  if (astro) {
+  if (tailwind) {
+    const stylesheetPaths: Record<string, string> = {
+      next: './src/app/globals.css',
+      vue: './src/style.css',
+      svelte: './src/app.css',
+      astro: './src/styles/globals.css',
+      default: './src/index.css',
+    };
+    const tailwindStylesheetPath = stylesheetPaths[framework!] ?? stylesheetPaths.default;
+
+    configContent += `'tailwindStylesheet': '${tailwindStylesheetPath}',\n`;
+  }
+
+  if (isUsingAstro) {
     configContent += `overrides: [
   {
     files: ['*.astro'],

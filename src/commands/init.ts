@@ -1,3 +1,5 @@
+import type { Framework } from '@/types';
+
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import { Command } from 'commander';
@@ -43,15 +45,15 @@ export const init = new Command()
       selectedTools === 'eslint-prettier' || selectedTools === 'prettier';
 
     const deps: string[] = [];
-    let isUsingAstro = false;
     let isUsingTailwind = false;
+    let framework: Framework | null = null;
 
     if (shouldConfigureEslint) {
       p.log.step('Configuring ESLint...');
 
       const eslintOptions = await getEslintOptions();
 
-      isUsingAstro = eslintOptions.framework === 'astro';
+      framework = eslintOptions.framework;
 
       deps.push(...getEslintDependencies(eslintOptions));
 
@@ -63,7 +65,7 @@ export const init = new Command()
     if (shouldConfigurePrettier) {
       p.log.step('Configuring Prettier...');
 
-      const prettierOptions = await getPrettierOptions(isUsingAstro);
+      const prettierOptions = await getPrettierOptions(framework);
 
       isUsingTailwind = prettierOptions.tailwind;
 
@@ -99,7 +101,7 @@ export const init = new Command()
 
     if (p.isCancel(shouldUpdateVscodeSettings)) handleCancellation();
     if (shouldUpdateVscodeSettings) {
-      await updateVscodeSettings({ tailwind: isUsingTailwind, astro: isUsingAstro }, dryRun);
+      await updateVscodeSettings({ tailwind: isUsingTailwind, framework }, dryRun);
     }
 
     let doneMessage = 'Done! Now run:\n';

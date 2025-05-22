@@ -8,7 +8,7 @@ import fs from 'fs-extra';
 
 import { formatJsonFile } from './format';
 
-function buildSettings({ tailwind, astro }: PrettierOptions): Record<string, unknown> {
+function buildSettings({ tailwind, framework }: PrettierOptions): Record<string, unknown> {
   const settings: Record<string, unknown> = {
     'editor.formatOnSave': true,
     'editor.defaultFormatter': 'esbenp.prettier-vscode',
@@ -26,7 +26,7 @@ function buildSettings({ tailwind, astro }: PrettierOptions): Record<string, unk
     },
   };
 
-  if (astro) {
+  if (framework === 'astro') {
     (settings['eslint.validate'] as string[]).push('astro');
   }
 

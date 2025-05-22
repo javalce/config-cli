@@ -24,5 +24,5 @@ export interface EslintOptions {
 
 export interface PrettierOptions {
   tailwind: boolean;
-  astro: boolean;
+  framework: Framework | null;
 }
