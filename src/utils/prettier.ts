@@ -22,6 +22,19 @@ export async function getPrettierOptions(framework: Framework | null): Promise<P
   };
 }
 
+export function getPrettierDependencies({ tailwind, framework }: PrettierOptions): string[] {
+  const dependencies: string[] = ['prettier', '@javalce/prettier-config'];
+  const isUsingAstro = framework === 'astro';
+  const plugins: string[] = [
+    ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
+    ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
+  ];
+
+  dependencies.push(...plugins);
+
+  return dependencies;
+}
+
 export async function writePrettierConfig(
   { tailwind, framework }: PrettierOptions,
   dryRun: boolean,

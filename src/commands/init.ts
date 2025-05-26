@@ -7,7 +7,12 @@ import { z } from 'zod';
 
 import { getEslintDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager, installDependencies } from '@/utils/npm';
-import { getPrettierOptions, writePrettierConfig, writePrettierignore } from '@/utils/prettier';
+import {
+  getPrettierDependencies,
+  getPrettierOptions,
+  writePrettierConfig,
+  writePrettierignore,
+} from '@/utils/prettier';
 import { handleCancellation } from '@/utils/prompt';
 import { updateVscodeSettings } from '@/utils/vscode';
 
@@ -69,6 +74,8 @@ export const init = new Command()
 
       isUsingTailwind = prettierOptions.tailwind;
 
+      deps.push(...getPrettierDependencies(prettierOptions));
+
       p.log.step('Generating Prettier config files...');
 
       await writePrettierConfig(prettierOptions, dryRun);
@@ -78,6 +85,9 @@ export const init = new Command()
     }
 
     let showInstallMessage = false;
+
+    p.log.info('The following dependencies are required:');
+    p.log.message(colors.cyan(deps.join(', ')));
 
     if (!dryRun) {
       const shouldInstallDependencies = await p.confirm({
