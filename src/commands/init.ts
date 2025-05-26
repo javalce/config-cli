@@ -30,7 +30,12 @@ export const init = new Command()
     p.intro(colors.bgCyan(' Welcome to the ESLint and Prettier configuration wizard! '));
 
     if (dryRun) {
-      p.log.warn(colors.bold.yellow('Dry run mode enabled'));
+      p.log.warn(colors.bold.yellow('Dry run mode enabled.'));
+      p.log.message(
+        colors.bold.yellow(
+          'During this run, no files will be modified nor dependencies installed.\nYou will see what would be done if you run the command without this flag.',
+        ),
+      );
     }
 
     const selectedTools = await p.select({
