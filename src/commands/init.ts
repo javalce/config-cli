@@ -59,7 +59,7 @@ export const init = new Command()
     let framework: Framework | null = null;
 
     if (shouldConfigureEslint) {
-      p.log.step('Configuring ESLint...');
+      p.log.step(colors.bgBlue(' Configuring ESLint... '));
 
       const eslintOptions = await getEslintOptions();
 
@@ -67,13 +67,11 @@ export const init = new Command()
 
       deps.push(...getEslintDependencies(eslintOptions));
 
-      p.log.step('Generating ESLint config file...');
-
       await writeEslintConfig(eslintOptions, dryRun);
     }
 
     if (shouldConfigurePrettier) {
-      p.log.step('Configuring Prettier...');
+      p.log.step(colors.bgBlue(' Configuring Prettier... '));
 
       const prettierOptions = await getPrettierOptions(framework);
 
@@ -81,12 +79,8 @@ export const init = new Command()
 
       deps.push(...getPrettierDependencies(prettierOptions));
 
-      p.log.step('Generating Prettier config files...');
-
       await writePrettierConfig(prettierOptions, dryRun);
       await writePrettierignore(dryRun);
-
-      p.log.success(colors.green('Prettier configuration complete!'));
     }
 
     let showInstallMessage = false;
@@ -96,7 +90,7 @@ export const init = new Command()
 
     if (!dryRun) {
       const shouldInstallDependencies = await p.confirm({
-        message: 'Would you like to install the dependencies now?',
+        message: 'Would you like to install them now?',
         initialValue: true,
       });
 

@@ -90,6 +90,8 @@ ${configContent}
   } else {
     await fs.writeFile(configFilename, formattedConfig);
   }
+
+  p.log.success(colors.green(`Created ${configFilename}`));
 }
 
 export async function writePrettierignore(dryRun: boolean): Promise<void> {
@@ -112,5 +114,6 @@ bun.lock
   } else {
     await fs.writeFile(ignoreFilename, ignoreContent);
   }
-  p.log.success(colors.green('Prettier ignore file created!'));
+
+  p.log.success(colors.green(`Created ${ignoreFilename}`));
 }

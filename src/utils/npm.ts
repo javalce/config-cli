@@ -53,7 +53,7 @@ export async function installDependencies(deps: string[]): Promise<void> {
   try {
     spinner.start('Installing missing dependencies...');
     await execa(packageManager, [packageManager === 'npm' ? 'install' : 'add', '-D', ...deps]);
-    spinner.stop(colors.green('Dependencies installed'));
+    spinner.stop(colors.green('Dependencies installed!'));
   } catch {
     spinner.stop(colors.red('Failed to install dependencies'));
     handleCancellation();
