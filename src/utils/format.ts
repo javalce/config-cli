@@ -1,18 +1,28 @@
-import { defineConfig } from '@javalce/prettier-config';
-import prettier from 'prettier';
+import prettier, { type Options } from 'prettier';
+
+const prettierOptions: Options = {
+  printWidth: 100,
+  tabWidth: 2,
+  useTabs: false,
+  endOfLine: 'lf',
+  trailingComma: 'all',
+  semi: true,
+  singleQuote: true,
+  jsxSingleQuote: true,
+  bracketSpacing: true,
+  arrowParens: 'always',
+};
 
 export async function formatConfigFile(config: string): Promise<string> {
-  const prettierOptions = defineConfig({
+  return prettier.format(config, {
+    ...prettierOptions,
     parser: 'espree',
   });
-
-  return prettier.format(config, prettierOptions);
 }
 
 export async function formatJsonFile(config: string): Promise<string> {
-  const prettierOptions = defineConfig({
+  return prettier.format(config, {
+    ...prettierOptions,
     parser: 'json-stringify',
   });
-
-  return prettier.format(config, prettierOptions);
 }
