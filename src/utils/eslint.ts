@@ -42,29 +42,23 @@ export async function getEslintOptions(): Promise<EslintOptions> {
 }
 
 export function getEslintDependencies({ framework, testing }: EslintOptions): string[] {
-  const deps = new Set<string>(['eslint', '@javalce/eslint-config']);
-  let addTestingLibrary = false;
-
-  if (framework === 'next') {
-    DEPENDENCIES_MAP.react.forEach((dep) => deps.add(dep));
-  }
+  const deps = new Set(['eslint', '@javalce/eslint-config']);
 
   if (framework) {
-    DEPENDENCIES_MAP[framework].forEach((dep) => deps.add(dep));
-    if (['react', 'next', 'vue'].includes(framework)) {
-      addTestingLibrary = true;
+    if (framework === 'next') {
+      DEPENDENCIES_MAP.react.forEach((dep) => deps.add(dep));
     }
+    DEPENDENCIES_MAP[framework].forEach((dep) => deps.add(dep));
   }
 
   if (testing) {
     DEPENDENCIES_MAP[testing].forEach((dep) => deps.add(dep));
+    if (framework && ['react', 'next', 'vue'].includes(framework)) {
+      DEPENDENCIES_MAP['testing-library'].forEach((dep) => deps.add(dep));
+    }
   }
 
-  if (addTestingLibrary) {
-    DEPENDENCIES_MAP['testing-library'].forEach((dep) => deps.add(dep));
-  }
-
-  return Array.from(deps);
+  return [...deps];
 }
 
 export async function writeEslintConfig(
