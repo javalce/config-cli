@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import * as p from '@clack/prompts';
+import colors from 'ansis';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 
@@ -52,9 +53,9 @@ export async function installDependencies(deps: string[]): Promise<void> {
   try {
     spinner.start('Installing missing dependencies...');
     await execa(packageManager, [packageManager === 'npm' ? 'install' : 'add', '-D', ...deps]);
-    spinner.stop();
+    spinner.stop(colors.green('Dependencies installed'));
   } catch {
-    spinner.stop();
+    spinner.stop(colors.red('Failed to install dependencies'));
     handleCancellation();
   }
 }
