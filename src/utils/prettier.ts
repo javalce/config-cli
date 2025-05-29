@@ -47,7 +47,7 @@ export async function writePrettierConfig(
     ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
   ];
   const typeComment = tailwind
-    ? `/** @type {import('prettier').Config & import('prettier-plugin-tailwind').PluginOptions} */`
+    ? `/** @type {import('prettier').Config & import('prettier-plugin-tailwindcss').PluginOptions} */`
     : `/** @type {import('prettier').Config} */`;
 
   // Mapeo de rutas de hojas de estilos para Tailwind
