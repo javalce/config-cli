@@ -95,6 +95,8 @@ export async function writeEslintConfig(
   }
 
   const config = `
+// @ts-check
+
 import { defineConfig } from '@javalce/eslint-config';
 
 export default defineConfig({
