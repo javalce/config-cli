@@ -42,45 +42,55 @@ export async function writePrettierConfig(
   const isESModule = await isPackageTypeModule();
   const configFilename = isESModule ? 'prettier.config.js' : 'prettier.config.mjs';
   const isUsingAstro = framework === 'astro';
-  const plugins: string[] = [
+  const plugins = [
     ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
     ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
   ];
+  const typeComment = tailwind
+    ? `/** @type {import('prettier').Config & import('prettier-plugin-tailwind').PluginOptions} */`
+    : `/** @type {import('prettier').Config} */`;
+
+  // Mapeo de rutas de hojas de estilos para Tailwind
+  const stylesheetPaths: Record<string, string> = {
+    next: './src/app/globals.css',
+    vue: './src/style.css',
+    svelte: './src/app.css',
+    astro: './src/styles/globals.css',
+    default: './src/index.css',
+  };
+  const tailwindStylesheetPath = stylesheetPaths[framework!] ?? stylesheetPaths.default;
 
   let configContent = '';
 
   if (plugins.length > 0) {
-    configContent += `plugins: [${plugins.map((p) => `'${p}'`).join(', ')}],\n`;
+    configContent += `plugins: [...prettierConfig.plugins, ${plugins.map((p) => `'${p}'`).join(', ')}],\n`;
   }
 
   if (tailwind) {
-    const stylesheetPaths: Record<string, string> = {
-      next: './src/app/globals.css',
-      vue: './src/style.css',
-      svelte: './src/app.css',
-      astro: './src/styles/globals.css',
-      default: './src/index.css',
-    };
-    const tailwindStylesheetPath = stylesheetPaths[framework!] ?? stylesheetPaths.default;
-
-    configContent += `'tailwindStylesheet': '${tailwindStylesheetPath}',\n`;
+    configContent += `tailwindStylesheet: '${tailwindStylesheetPath}',\n`;
   }
 
   if (isUsingAstro) {
     configContent += `overrides: [
   {
     files: ['*.astro'],
-    options: { parser: 'astro' },
+    options: {
+      parser: 'astro'
+    },
   }
-],\n`;
+],`;
   }
 
   const config = `
-import { defineConfig } from '@javalce/prettier-config';
+// @ts-check
 
-export default defineConfig({
-${configContent}
-});
+import prettierConfig from '@javalce/prettier-config';
+
+${typeComment}
+export default {
+  ...prettierConfig,
+  ${configContent}
+};
 `.trim();
 
   const formattedConfig = await formatConfigFile(config);
