@@ -19,7 +19,9 @@
   "license": "MIT",
   "author": "Javier Valero <javalce29@gmail.com>",
   "type": "module",
-  "bin": "./bin/index.js",
+  "bin": {
+    "javalce-config": "./bin/index.js"
+  },
   "files": [
     "dist"
   ],
@@ -31,7 +33,9 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky"
+    "prepack": "pnpm build",
+    "prepare": "husky",
+    "release": "bumpp && pnpm publish"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
