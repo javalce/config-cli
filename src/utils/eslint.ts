@@ -87,7 +87,7 @@ export async function writeEslintConfig(
   }
 
   if (testing) {
-    configContent += `testing: ${testing},`;
+    configContent += `testing: '${testing}',`;
   }
 
   if (lib) {
