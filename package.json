@@ -20,7 +20,7 @@
   "author": "Javier Valero <javalce29@gmail.com>",
   "type": "module",
   "bin": {
-    "javalce-config": "./bin/index.js"
+    "javalce-config": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.11.0",
-    "@javalce/prettier-config": "^2.2.0",
     "ansis": "^4.1.0",
     "commander": "^14.0.0",
     "execa": "^9.6.0",
@@ -56,6 +55,7 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@commitlint/types": "^19.8.1",
     "@javalce/eslint-config": "^0.12.0",
+    "@javalce/prettier-config": "^2.2.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.15.24",
     "bumpp": "^10.1.1",
