@@ -27,9 +27,9 @@ export function getPackageManager(): PackageManager {
   return 'npm';
 }
 
-export async function getPackageJson(): Promise<Record<string, unknown>> {
+export function getPackageJson(): Record<string, unknown> {
   try {
-    const packageJson = await fs.readFile(path.join(process.cwd(), 'package.json'), {
+    const packageJson = fs.readFileSync(path.join(process.cwd(), 'package.json'), {
       encoding: 'utf-8',
     });
 
@@ -40,8 +40,8 @@ export async function getPackageJson(): Promise<Record<string, unknown>> {
   }
 }
 
-export async function isPackageTypeModule(): Promise<boolean> {
-  const packageJson = await getPackageJson();
+export function isPackageTypeModule(): boolean {
+  const packageJson = getPackageJson();
 
   return packageJson.type === 'module';
 }

@@ -39,7 +39,7 @@ export async function writePrettierConfig(
   { tailwind, framework }: PrettierOptions,
   dryRun: boolean,
 ): Promise<void> {
-  const isESModule = await isPackageTypeModule();
+  const isESModule = isPackageTypeModule();
   const configFilename = isESModule ? 'prettier.config.js' : 'prettier.config.mjs';
   const isUsingAstro = framework === 'astro';
   const plugins = [

@@ -65,7 +65,7 @@ export async function writeEslintConfig(
   { framework, testing, lib }: EslintOptions,
   dryRun: boolean,
 ): Promise<void> {
-  const isESModule = await isPackageTypeModule();
+  const isESModule = isPackageTypeModule();
   const configFilename = isESModule ? 'eslint.config.js' : 'eslint.config.mjs';
 
   let configContent = '';
