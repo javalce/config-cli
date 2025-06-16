@@ -9,19 +9,44 @@ import { handleCancellation } from './prompt';
 
 export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun';
 
+function checkFilesExist(...filenames: string[]): boolean {
+  const cwd = process.cwd();
+
+  return filenames.every((filename) => fs.existsSync(path.join(cwd, filename)));
+}
+
 export function getPackageManager(): PackageManager {
+  const pkg = getPackageJson();
+  const packageManager = pkg.packageManager as string | undefined;
   const userAgent = process.env.npm_config_user_agent ?? '';
 
-  if (userAgent.startsWith('yarn')) {
-    return 'yarn';
-  }
+  const packageManagerEvaluators: Array<{ name: PackageManager; test: () => boolean }> = [
+    {
+      name: 'pnpm',
+      test: () =>
+        packageManager?.includes('pnpm') ??
+        (checkFilesExist('pnpm-lock.yaml') || userAgent.includes('pnpm')),
+    },
+    {
+      name: 'yarn',
+      test: () =>
+        packageManager?.includes('yarn') ??
+        (checkFilesExist('yarn.lock') || userAgent.includes('yarn')),
+    },
+    {
+      name: 'bun',
+      test: () =>
+        packageManager?.includes('bun') ??
+        (checkFilesExist('bun.lockb', 'bun.lock') || userAgent.includes('bun')),
+    },
+    {
+      name: 'npm',
+      test: () => packageManager?.includes('npm') ?? userAgent.includes('npm'),
+    },
+  ];
 
-  if (userAgent.startsWith('pnpm')) {
-    return 'pnpm';
-  }
-
-  if (userAgent.startsWith('bun')) {
-    return 'bun';
+  for (const managerEvaluator of packageManagerEvaluators) {
+    if (managerEvaluator.test()) return managerEvaluator.name;
   }
 
   return 'npm';
@@ -48,6 +73,7 @@ export function isPackageTypeModule(): boolean {
 
 export async function installDependencies(deps: string[]): Promise<void> {
   const packageManager = getPackageManager();
+
   const spinner = p.spinner();
 
   try {
