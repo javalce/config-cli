@@ -47,8 +47,8 @@
     "execa": "^9.6.0",
     "fs-extra": "^11.3.0",
     "local-pkg": "^1.1.1",
-    "prettier": "^3.5.3",
-    "zod": "^3.25.64"
+    "prettier": "^3.6.2",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
@@ -57,8 +57,8 @@
     "@javalce/eslint-config": "^0.12.3",
     "@javalce/prettier-config": "^2.2.0",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^24.0.2",
-    "bumpp": "^10.1.1",
+    "@types/node": "^24.0.4",
+    "bumpp": "^10.2.0",
     "conventional-changelog-cli": "^5.0.0",
     "eslint": "^9.29.0",
     "husky": "^9.1.7",
