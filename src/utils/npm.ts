@@ -7,47 +7,60 @@ import fs from 'fs-extra';
 
 import { handleCancellation } from './prompt';
 
-export type PackageManager = 'npm' | 'pnpm' | 'yarn' | 'bun';
+const PACKAGE_MANAGERS = ['npm', 'pnpm', 'yarn', 'bun'] as const;
 
-function checkFilesExist(...filenames: string[]): boolean {
-  const cwd = process.cwd();
+type PackageManager = (typeof PACKAGE_MANAGERS)[number];
 
-  return filenames.every((filename) => fs.existsSync(path.join(cwd, filename)));
+function getPackageManagerFromPackageJson(): PackageManager | undefined {
+  const pkg = getPackageJson();
+  const packageManager = pkg.packageManager as string | undefined;
+
+  return PACKAGE_MANAGERS.find((pm) => packageManager?.startsWith(pm));
+}
+
+function getPackageManagerFromLockfiles(): PackageManager | undefined {
+  const lockfiles = {
+    'bun.lock': 'bun',
+    'bun.lockb': 'bun',
+    'pnpm-lock.yaml': 'pnpm',
+    'yarn.lock': 'yarn',
+    'package-lock.json': 'npm',
+  };
+
+  for (const [lockfile, manager] of Object.entries(lockfiles)) {
+    const file = path.join(process.cwd(), lockfile);
+
+    if (fs.existsSync(file)) {
+      return manager as PackageManager;
+    }
+  }
+
+  return undefined;
+}
+
+function getPackageManagerFromUserAgent(): PackageManager | undefined {
+  const userAgent = process.env.npm_config_user_agent ?? '';
+
+  if (userAgent.includes('pnpm')) return 'pnpm';
+  if (userAgent.includes('yarn')) return 'yarn';
+  if (userAgent.includes('bun')) return 'bun';
+  if (userAgent.includes('npm')) return 'npm';
+
+  return undefined;
 }
 
 export function getPackageManager(): PackageManager {
-  const pkg = getPackageJson();
-  const packageManager = pkg.packageManager as string | undefined;
-  const userAgent = process.env.npm_config_user_agent ?? '';
+  const pmFromPackageJson = getPackageManagerFromPackageJson();
 
-  const packageManagerEvaluators: Array<{ name: PackageManager; test: () => boolean }> = [
-    {
-      name: 'pnpm',
-      test: () =>
-        packageManager?.includes('pnpm') ??
-        (checkFilesExist('pnpm-lock.yaml') || userAgent.includes('pnpm')),
-    },
-    {
-      name: 'yarn',
-      test: () =>
-        packageManager?.includes('yarn') ??
-        (checkFilesExist('yarn.lock') || userAgent.includes('yarn')),
-    },
-    {
-      name: 'bun',
-      test: () =>
-        packageManager?.includes('bun') ??
-        (checkFilesExist('bun.lockb', 'bun.lock') || userAgent.includes('bun')),
-    },
-    {
-      name: 'npm',
-      test: () => packageManager?.includes('npm') ?? userAgent.includes('npm'),
-    },
-  ];
+  if (pmFromPackageJson) return pmFromPackageJson;
 
-  for (const managerEvaluator of packageManagerEvaluators) {
-    if (managerEvaluator.test()) return managerEvaluator.name;
-  }
+  const pmFromLockfiles = getPackageManagerFromLockfiles();
+
+  if (pmFromLockfiles) return pmFromLockfiles;
+
+  const pmFromUserAgent = getPackageManagerFromUserAgent();
+
+  if (pmFromUserAgent) return pmFromUserAgent;
 
   return 'npm';
 }
