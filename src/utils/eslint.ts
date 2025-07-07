@@ -68,40 +68,39 @@ export async function writeEslintConfig(
   const isESModule = isPackageTypeModule();
   const configFilename = isESModule ? 'eslint.config.js' : 'eslint.config.mjs';
 
-  let configContent = '';
-
   const hasTsEslinConfig = await fs.exists('tsconfig.eslint.json');
   const hasTsAppConfig = await fs.exists('tsconfig.app.json');
   const hasTsNodeConfig = await fs.exists('tsconfig.node.json');
 
+  // Construir el objeto de configuración dinámicamente
+  const configObj: Record<string, unknown> = {};
+
   if (!hasTsEslinConfig && hasTsAppConfig && hasTsNodeConfig) {
-    configContent += "typescript: ['tsconfig.node.json', 'tsconfig.app.json'],";
+    configObj.typescript = ['tsconfig.node.json', 'tsconfig.app.json'];
   }
 
   if (framework) {
     if (framework === 'next') {
-      configContent += 'react: true,';
+      configObj.react = true;
     }
-
-    configContent += `${framework}: true,`;
+    configObj[framework] = true;
   }
 
   if (testing) {
-    configContent += `testing: '${testing}',`;
+    configObj.testing = testing;
   }
 
   if (lib) {
-    configContent += `type: 'lib',`;
+    configObj.type = 'lib';
   }
 
+  // Generar el contenido del archivo de configuración
   const config = `
 // @ts-check
-
 import { defineConfig } from '@javalce/eslint-config';
 
-export default defineConfig({
-${configContent}
-});`.trimStart();
+export default defineConfig(${Object.keys(configObj).length ? JSON.stringify(configObj, null, 2) : ''});
+`.trimStart();
 
   const formattedConfig = await formatConfigFile(config);
 

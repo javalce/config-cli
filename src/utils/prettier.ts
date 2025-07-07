@@ -60,36 +60,40 @@ export async function writePrettierConfig(
   };
   const tailwindStylesheetPath = stylesheetPaths[framework!] ?? stylesheetPaths.default;
 
-  let configContent = '';
-
-  if (plugins.length > 0) {
-    configContent += `plugins: [...prettierConfig.plugins, ${plugins.map((p) => `'${p}'`).join(', ')}],\n`;
-  }
+  // Construir el objeto de configuración dinámicamente
+  const configObj: Record<string, unknown> = {};
 
   if (tailwind) {
-    configContent += `tailwindStylesheet: '${tailwindStylesheetPath}',\n`;
+    configObj.tailwindStylesheet = tailwindStylesheetPath;
+  }
+  if (plugins.length > 0) {
+    configObj.plugins = plugins;
   }
 
   if (isUsingAstro) {
-    configContent += `overrides: [
-  {
-    files: ['*.astro'],
-    options: {
-      parser: 'astro'
-    },
-  }
-],`;
+    configObj.overrides = [
+      {
+        files: ['*.astro'],
+        options: {
+          parser: 'astro',
+        },
+      },
+    ];
   }
 
+  const stringifiedConfigObject = Object.entries(configObj)
+    .map(([key, value]) => `${key}: ${JSON.stringify(value, null, 2)},`)
+    .join('\n  ');
+
+  // Generar el contenido del archivo de configuración
   const config = `
 // @ts-check
-
 import prettierConfig from '@javalce/prettier-config';
 
 ${typeComment}
 export default {
   ...prettierConfig,
-  ${configContent}
+  ${stringifiedConfigObject}
 };
 `.trim();
 
