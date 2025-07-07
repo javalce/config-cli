@@ -4,7 +4,7 @@ import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
 
-import { DEPENDENCIES_MAP, FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/consts';
+import { DEPENDENCIES_MAP, FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/constants';
 
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
