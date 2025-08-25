@@ -1,4 +1,4 @@
-export type Framework = 'react' | 'next' | 'vue' | 'svelte' | 'solid' | 'astro';
+export type Framework = 'angular' | 'react' | 'next' | 'vue' | 'svelte' | 'solid' | 'astro';
 
 export type TestingFramework = 'jest' | 'vitest';
 
@@ -19,6 +19,7 @@ export interface TestingFrameworkOptions {
 export interface EslintOptions {
   framework: Framework | null;
   testing: TestingFramework | null;
+  testingLibrary: boolean;
   lib: boolean;
 }
 

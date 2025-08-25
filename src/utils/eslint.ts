@@ -2,45 +2,69 @@ import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
 
-import type { EslintOptions } from '@/types';
 import { DEPENDENCIES_MAP, FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/constants';
+import type { EslintOptions } from '@/types';
 
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
 import { handleCancellation } from './prompt';
 
 export async function getEslintOptions(): Promise<EslintOptions> {
-  return p.group(
-    {
-      framework: () =>
-        p.select({
-          message: 'Select a framework',
-          options: FRAMEWORK_OPTIONS.map(({ label, value, color }) => ({
-            label: color(label),
-            value,
-          })),
-        }),
-      testing: () =>
-        p.select({
-          message: 'Select a testing framework',
-          options: TESTING_FRAMEWORK_OPTIONS.map(({ label, value, color }) => ({
-            label: color(label),
-            value,
-          })),
-        }),
-      lib: () =>
-        p.confirm({
-          message: 'Are you building a library?',
-          initialValue: false,
-        }),
-    },
-    {
-      onCancel: handleCancellation,
-    },
-  );
+  const framework = await p.select({
+    message: 'Select a framework',
+    options: FRAMEWORK_OPTIONS.map(({ label, value, color }) => ({
+      label: color(label),
+      value,
+    })),
+  });
+
+  if (p.isCancel(framework)) handleCancellation();
+
+  const testing = await p.select({
+    message: 'Select a testing framework',
+    options: TESTING_FRAMEWORK_OPTIONS.map(({ label, value, color }) => ({
+      label: color(label),
+      value,
+    })),
+  });
+
+  if (p.isCancel(testing)) handleCancellation();
+
+  const testingLibrary = await (async () => {
+    if (framework === null || !['angular', 'react', 'vue', 'svelte'].includes(framework)) {
+      return false;
+    }
+
+    const result = await p.confirm({
+      message: 'Are you using a testing library?',
+      initialValue: false,
+    });
+
+    if (p.isCancel(result)) handleCancellation();
+
+    return result;
+  })();
+
+  const lib = await p.confirm({
+    message: 'Are you building a library?',
+    initialValue: false,
+  });
+
+  if (p.isCancel(lib)) handleCancellation();
+
+  return {
+    framework,
+    testingLibrary,
+    testing,
+    lib,
+  };
 }
 
-export function getEslintDependencies({ framework, testing }: EslintOptions): string[] {
+export function getEslintDependencies({
+  framework,
+  testing,
+  testingLibrary,
+}: EslintOptions): string[] {
   const deps = new Set(['eslint', '@javalce/eslint-config']);
 
   if (framework) {
@@ -52,16 +76,17 @@ export function getEslintDependencies({ framework, testing }: EslintOptions): st
 
   if (testing) {
     DEPENDENCIES_MAP[testing].forEach((dep) => deps.add(dep));
-    if (framework && ['react', 'next', 'vue'].includes(framework)) {
-      DEPENDENCIES_MAP['testing-library'].forEach((dep) => deps.add(dep));
-    }
+  }
+
+  if (testingLibrary) {
+    DEPENDENCIES_MAP['testing-library'].forEach((dep) => deps.add(dep));
   }
 
   return [...deps];
 }
 
 export async function writeEslintConfig(
-  { framework, testing, lib }: EslintOptions,
+  { framework, testing, testingLibrary, lib }: EslintOptions,
   dryRun: boolean,
 ): Promise<void> {
   const isESModule = isPackageTypeModule();
@@ -86,7 +111,10 @@ export async function writeEslintConfig(
   }
 
   if (testing) {
-    configObj.testing = testing;
+    configObj.test = {
+      framework: testing,
+      ...(testingLibrary && { testingLibrary: true }),
+    };
   }
 
   if (lib) {

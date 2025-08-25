@@ -22,7 +22,7 @@ function buildSettings({ tailwind, framework }: PrettierOptions): Record<string,
     'explorer.fileNesting.patterns': {
       'tsconfig.json': 'tsconfig.*.json',
       'package.json':
-        'package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, .gitignore, *.config.js, *.config.mjs, *.config.ts, .editorconfig, .prettierignore, .node-version, .npmrc',
+        'package-lock.json, yarn.lock, pnpm-lock.yaml, pnpm-workspace.yaml, bun.lockb, .gitignore, *.config.js, *.config.mjs, *.config.ts, .editorconfig, .prettierignore, .node-version, .npmrc',
     },
   };
 

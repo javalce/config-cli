@@ -14,6 +14,11 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
     color: colors.white,
   },
   {
+    label: 'Angular',
+    value: 'angular',
+    color: colors.red,
+  },
+  {
     label: 'React',
     value: 'react',
     color: colors.cyan,
@@ -65,6 +70,7 @@ export const TESTING_FRAMEWORK_OPTIONS: TestingFrameworkOptions[] = [
 
 export const DEPENDENCIES_MAP: Record<Framework | TestingFramework | 'testing-library', string[]> =
   {
+    angular: ['angular-eslint'],
     react: [
       'eslint-plugin-react',
       'eslint-plugin-react-hooks',
