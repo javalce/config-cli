@@ -1,10 +1,10 @@
-import type { PrettierOptions } from '@/types';
-
 import path from 'node:path';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
+
+import type { PrettierOptions } from '@/types';
 
 import { formatJsonFile } from './format';
 

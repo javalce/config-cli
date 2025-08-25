@@ -1,10 +1,9 @@
-import type { Framework } from '@/types';
-
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import { Command } from 'commander';
 import { z } from 'zod';
 
+import type { Framework } from '@/types';
 import { getEslintDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager, installDependencies } from '@/utils/npm';
 import {
