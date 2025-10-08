@@ -26,7 +26,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsdown",
     "changelog": "conventional-changelog -i CHANGELOG.md -s -t v -p angular",
     "dev": "tsx src/index.ts",
     "format": "prettier --write .",
@@ -63,7 +63,7 @@
     "eslint": "9.36.0",
     "husky": "9.1.7",
     "lint-staged": "16.2.0",
-    "tsup": "8.5.0",
+    "tsdown": "0.15.4",
     "tsx": "4.20.5",
     "typescript": "5.9.2"
   },
