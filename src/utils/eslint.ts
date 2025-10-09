@@ -1,9 +1,10 @@
+import type { EslintOptions } from '@/types';
+
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
 
 import { DEPENDENCIES_MAP, FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/constants';
-import type { EslintOptions } from '@/types';
 
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
@@ -67,19 +68,16 @@ export function getEslintDependencies({
 }: EslintOptions): string[] {
   const deps = new Set(['eslint', '@javalce/eslint-config']);
 
-  if (framework) {
-    if (framework === 'next') {
-      DEPENDENCIES_MAP.react.forEach((dep) => deps.add(dep));
-    }
-    DEPENDENCIES_MAP[framework].forEach((dep) => deps.add(dep));
+  if (framework === 'next') {
+    DEPENDENCIES_MAP.react.forEach((dep) => deps.add(dep));
   }
+  DEPENDENCIES_MAP[framework].forEach((dep) => deps.add(dep));
 
   if (testing) {
     DEPENDENCIES_MAP[testing].forEach((dep) => deps.add(dep));
-  }
-
-  if (testingLibrary) {
-    DEPENDENCIES_MAP['testing-library'].forEach((dep) => deps.add(dep));
+    if (['react', 'next', 'vue'].includes(framework)) {
+      DEPENDENCIES_MAP['testing-library'].forEach((dep) => deps.add(dep));
+    }
   }
 
   return [...deps];
@@ -103,12 +101,10 @@ export async function writeEslintConfig(
     configObj.typescript = ['tsconfig.node.json', 'tsconfig.app.json'];
   }
 
-  if (framework) {
-    if (framework === 'next') {
-      configObj.react = true;
-    }
-    configObj[framework] = true;
+  if (framework === 'next') {
+    configObj.react = true;
   }
+  configObj[framework] = true;
 
   if (testing) {
     configObj.test = {

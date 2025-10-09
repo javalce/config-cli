@@ -1,14 +1,14 @@
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import { Command } from 'commander';
-import { z } from 'zod';
+import * as z from 'zod';
 
 import type { Framework } from '@/types';
 import { getEslintDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager, installDependencies } from '@/utils/npm';
 import {
+  confirmTailwindIntegration,
   getPrettierDependencies,
-  getPrettierOptions,
   writePrettierConfig,
   writePrettierignore,
 } from '@/utils/prettier';
@@ -22,7 +22,7 @@ const optionsSchema = z.object({
 export const init = new Command()
   .name('init')
   .description('Bootstrap ESLint and Prettier configuration')
-  .option('--dry-run', 'Show what will be done without making any changes')
+  .option('-d, --dry-run', 'Show what will be done without making any changes')
   .action(async (opts) => {
     const { dryRun } = await optionsSchema.parseAsync(opts);
 
@@ -72,13 +72,11 @@ export const init = new Command()
     if (shouldConfigurePrettier) {
       p.log.step(colors.bgBlue(' Configuring Prettier... '));
 
-      const prettierOptions = await getPrettierOptions(framework);
+      isUsingTailwind = await confirmTailwindIntegration(framework);
 
-      isUsingTailwind = prettierOptions.tailwind;
+      deps.push(...getPrettierDependencies({ tailwind: isUsingTailwind, framework }));
 
-      deps.push(...getPrettierDependencies(prettierOptions));
-
-      await writePrettierConfig(prettierOptions, dryRun);
+      await writePrettierConfig({ tailwind: isUsingTailwind, framework }, dryRun);
       await writePrettierignore(dryRun);
     }
 

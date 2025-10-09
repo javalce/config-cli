@@ -8,7 +8,11 @@ import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
 import { handleCancellation } from './prompt';
 
-export async function getPrettierOptions(framework: Framework | null): Promise<PrettierOptions> {
+export async function confirmTailwindIntegration(framework: Framework | null): Promise<boolean> {
+  if (framework === 'node') {
+    return false;
+  }
+
   const tailwind = await p.confirm({
     message: 'Are you using Tailwind CSS?',
     initialValue: true,
@@ -16,10 +20,7 @@ export async function getPrettierOptions(framework: Framework | null): Promise<P
 
   if (p.isCancel(tailwind)) handleCancellation();
 
-  return {
-    tailwind,
-    framework,
-  };
+  return tailwind;
 }
 
 export function getPrettierDependencies({ tailwind, framework }: PrettierOptions): string[] {
@@ -43,6 +44,7 @@ export async function writePrettierConfig(
   const configFilename = isESModule ? 'prettier.config.js' : 'prettier.config.mjs';
   const isUsingAstro = framework === 'astro';
   const plugins = [
+    '...prettierConfig.plugins',
     ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
     ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
   ];

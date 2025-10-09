@@ -9,14 +9,14 @@ import colors from 'ansis';
 
 export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   {
-    label: 'None',
-    value: null,
-    color: colors.white,
+    label: 'Vanilla',
+    value: 'vanilla',
+    color: colors.yellow,
   },
   {
-    label: 'Angular',
-    value: 'angular',
-    color: colors.red,
+    label: 'Node.js',
+    value: 'node',
+    color: colors.green,
   },
   {
     label: 'React',
@@ -31,7 +31,7 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   {
     label: 'Vue',
     value: 'vue',
-    color: colors.green,
+    color: colors.greenBright,
   },
   {
     label: 'Svelte',
@@ -70,7 +70,8 @@ export const TESTING_FRAMEWORK_OPTIONS: TestingFrameworkOptions[] = [
 
 export const DEPENDENCIES_MAP: Record<Framework | TestingFramework | 'testing-library', string[]> =
   {
-    angular: ['angular-eslint'],
+    vanilla: [],
+    node: [],
     react: [
       'eslint-plugin-react',
       'eslint-plugin-react-hooks',

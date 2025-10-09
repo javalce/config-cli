@@ -1,4 +1,12 @@
-export type Framework = 'angular' | 'react' | 'next' | 'vue' | 'svelte' | 'solid' | 'astro';
+export type Framework =
+  | 'vanilla'
+  | 'node'
+  | 'react'
+  | 'next'
+  | 'vue'
+  | 'svelte'
+  | 'solid'
+  | 'astro';
 
 export type TestingFramework = 'jest' | 'vitest';
 
@@ -6,7 +14,7 @@ type ColorFunc = (str: string | number) => string;
 
 export interface FrameworkOptions {
   label: string;
-  value: Framework | null;
+  value: Framework;
   color: ColorFunc;
 }
 
@@ -17,7 +25,7 @@ export interface TestingFrameworkOptions {
 }
 
 export interface EslintOptions {
-  framework: Framework | null;
+  framework: Framework;
   testing: TestingFramework | null;
   testingLibrary: boolean;
   lib: boolean;
