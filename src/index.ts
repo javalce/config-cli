@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 
 import { description, name, version } from '../package.json';
-
 import { init } from './commands/init';
 
 process.on('SIGINT', () => process.exit(0));
