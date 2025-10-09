@@ -27,6 +27,7 @@ export function getPrettierDependencies({ tailwind, framework }: PrettierOptions
   const dependencies: string[] = ['prettier', '@javalce/prettier-config'];
   const isUsingAstro = framework === 'astro';
   const plugins: string[] = [
+    '...prettierConfig.plugins',
     ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
     ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
   ];
@@ -52,7 +53,6 @@ export async function writePrettierConfig(
     ? `/** @type {import('prettier').Config & import('prettier-plugin-tailwindcss').PluginOptions} */`
     : `/** @type {import('prettier').Config} */`;
 
-  // Mapeo de rutas de hojas de estilos para Tailwind
   const stylesheetPaths: Record<string, string> = {
     next: './src/app/globals.css',
     vue: './src/style.css',
@@ -62,15 +62,13 @@ export async function writePrettierConfig(
   };
   const tailwindStylesheetPath = stylesheetPaths[framework!] ?? stylesheetPaths.default;
 
-  // Construir el objeto de configuración dinámicamente
   const configObj: Record<string, unknown> = {};
 
   if (tailwind) {
     configObj.tailwindStylesheet = tailwindStylesheetPath;
   }
-  if (plugins.length > 0) {
-    configObj.plugins = plugins;
-  }
+
+  configObj.plugins = plugins;
 
   if (isUsingAstro) {
     configObj.overrides = [
@@ -84,10 +82,20 @@ export async function writePrettierConfig(
   }
 
   const stringifiedConfigObject = Object.entries(configObj)
-    .map(([key, value]) => `${key}: ${JSON.stringify(value, null, 2)},`)
+    .map(([key, value]) => {
+      let stringifiedValue = JSON.stringify(value, null, 2);
+
+      if (key === 'plugins') {
+        stringifiedValue = stringifiedValue.replace(
+          /"\.\.\.prettierConfig\.plugins"/,
+          '...prettierConfig.plugins',
+        );
+      }
+
+      return `${key}: ${stringifiedValue},`;
+    })
     .join('\n  ');
 
-  // Generar el contenido del archivo de configuración
   const config = `
 // @ts-check
 import prettierConfig from '@javalce/prettier-config';
@@ -125,6 +133,7 @@ bun.lock
 
     return;
   }
+
   if (dryRun) {
     p.note(colors.blue(ignoreContent));
   } else {
