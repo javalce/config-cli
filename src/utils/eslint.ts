@@ -32,7 +32,7 @@ export async function getEslintOptions(): Promise<EslintOptions> {
   if (p.isCancel(testing)) handleCancellation();
 
   const testingLibrary = await (async () => {
-    if (framework === null || !['angular', 'react', 'vue', 'svelte'].includes(framework)) {
+    if (!['angular', 'react', 'vue', 'svelte'].includes(framework)) {
       return false;
     }
 
@@ -61,11 +61,7 @@ export async function getEslintOptions(): Promise<EslintOptions> {
   };
 }
 
-export function getEslintDependencies({
-  framework,
-  testing,
-  testingLibrary,
-}: EslintOptions): string[] {
+export function getEslintDependencies({ framework, testing }: EslintOptions): string[] {
   const deps = new Set(['eslint', '@javalce/eslint-config']);
 
   if (framework === 'next') {
