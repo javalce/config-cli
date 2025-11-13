@@ -1,8 +1,8 @@
+import type { Framework, PrettierOptions } from '@/types';
+
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
-
-import type { Framework, PrettierOptions } from '@/types';
 
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';

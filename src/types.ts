@@ -1,5 +1,5 @@
 export type Framework =
-  | 'vanilla'
+  | 'angular'
   | 'node'
   | 'react'
   | 'next'
