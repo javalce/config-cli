@@ -9,7 +9,7 @@ import { handleCancellation } from './prompt';
 
 const PACKAGE_MANAGERS = ['npm', 'pnpm', 'yarn', 'bun'] as const;
 
-type PackageManager = (typeof PACKAGE_MANAGERS)[number];
+export type PackageManager = (typeof PACKAGE_MANAGERS)[number];
 
 function getPackageManagerFromPackageJson(): PackageManager | undefined {
   const pkg = getPackageJson();

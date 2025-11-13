@@ -1,3 +1,4 @@
+import type { PackageManager } from './npm';
 import type { PrettierOptions } from '@/types';
 
 import path from 'node:path';
@@ -8,21 +9,35 @@ import fs from 'fs-extra';
 
 import { formatJsonFile } from './format';
 
-function buildSettings({ tailwind, framework }: PrettierOptions): Record<string, unknown> {
+function buildSettings(
+  { tailwind, framework }: PrettierOptions,
+  packageManager: PackageManager,
+): Record<string, unknown> {
+  let pkgNesting = `.gitignore, *.config.js, *.config.mjs, *.config.ts, .editorconfig, .prettierignore, .node-version`;
+
+  if (packageManager === 'npm') {
+    pkgNesting = `package-lock.json, ${pkgNesting}`;
+  } else if (packageManager === 'yarn') {
+    pkgNesting = `yarn.lock, ${pkgNesting}`;
+  } else if (packageManager === 'pnpm') {
+    pkgNesting = `pnpm-lock.yaml, pnpm-workspace.yaml, ${pkgNesting}`;
+  } else {
+    pkgNesting = `bun.lockb, bun.lock, ${pkgNesting}`;
+  }
+
   const settings: Record<string, unknown> = {
     'editor.formatOnSave': true,
     'editor.defaultFormatter': 'esbenp.prettier-vscode',
     'editor.codeActionsOnSave': {
       'source.fixAll.eslint': 'explicit',
-      'source.organizeImports': 'explicit',
+      'source.organizeImports': 'never',
     },
     'eslint.validate': ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'],
     'explorer.fileNesting.enabled': true,
     'explorer.fileNesting.expand': false,
     'explorer.fileNesting.patterns': {
       'tsconfig.json': 'tsconfig.*.json',
-      'package.json':
-        'package-lock.json, yarn.lock, pnpm-lock.yaml, pnpm-workspace.yaml, bun.lockb, bun.lock, .gitignore, *.config.js, *.config.mjs, *.config.ts, .editorconfig, .prettierignore, .node-version, .npmrc',
+      'package.json': pkgNesting,
     },
   };
 
@@ -38,6 +53,7 @@ function buildSettings({ tailwind, framework }: PrettierOptions): Record<string,
 }
 
 export async function updateVscodeSettings(
+  packageManager: PackageManager,
   options: PrettierOptions,
   dryRun: boolean,
 ): Promise<void> {
@@ -47,7 +63,7 @@ export async function updateVscodeSettings(
 
   await fs.ensureDir(vscodeDirPath);
 
-  const newSettings = buildSettings(options);
+  const newSettings = buildSettings(options, packageManager);
   const newSettingsContent = JSON.stringify(newSettings);
 
   let formattedSettingsContent: string;

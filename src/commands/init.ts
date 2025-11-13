@@ -26,6 +26,7 @@ export const init = new Command()
   .option('-d, --dry-run', 'Show what will be done without making any changes')
   .action(async (opts) => {
     const { dryRun } = await optionsSchema.parseAsync(opts);
+    const pkgManager = getPackageManager();
 
     p.intro(colors.bgCyan(' Welcome to the ESLint and Prettier configuration wizard! '));
 
@@ -108,11 +109,10 @@ export const init = new Command()
 
     if (p.isCancel(shouldUpdateVscodeSettings)) handleCancellation();
     if (shouldUpdateVscodeSettings) {
-      await updateVscodeSettings({ tailwind: isUsingTailwind, framework }, dryRun);
+      await updateVscodeSettings(pkgManager, { tailwind: isUsingTailwind, framework }, dryRun);
     }
 
     let doneMessage = 'Done! Now run:\n';
-    const pkgManager = getPackageManager();
 
     if (showInstallMessage) {
       doneMessage += `\n  ${pkgManager} install`;
