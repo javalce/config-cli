@@ -73,7 +73,7 @@ export const init = new Command()
     if (shouldConfigurePrettier) {
       p.log.step(colors.bgBlue(' Configuring Prettier... '));
 
-      isUsingTailwind = await confirmTailwindIntegration(framework);
+      isUsingTailwind = confirmTailwindIntegration();
 
       deps.push(...getPrettierDependencies({ tailwind: isUsingTailwind, framework }));
 
@@ -84,7 +84,7 @@ export const init = new Command()
     let showInstallMessage = false;
 
     p.log.info('The following dependencies are required:');
-    p.log.message(colors.cyan(deps.join(', ')));
+    p.log.message(colors.cyan(deps.join(' ')));
 
     if (!dryRun) {
       const shouldInstallDependencies = await p.confirm({

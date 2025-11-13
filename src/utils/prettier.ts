@@ -1,24 +1,19 @@
-import type { Framework, PrettierOptions } from '@/types';
+import type { PrettierOptions } from '@/types';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
+import { isPackageExists } from 'local-pkg';
 
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
-import { handleCancellation } from './prompt';
 
-export async function confirmTailwindIntegration(framework: Framework | null): Promise<boolean> {
-  if (framework === 'node') {
-    return false;
+export function confirmTailwindIntegration(): boolean {
+  const tailwind = isPackageExists('tailwindcss');
+
+  if (tailwind) {
+    p.log.info(`Detected Tailwind CSS installation: ${colors.cyan('tailwindcss')}`);
   }
-
-  const tailwind = await p.confirm({
-    message: 'Are you using Tailwind CSS?',
-    initialValue: true,
-  });
-
-  if (p.isCancel(tailwind)) handleCancellation();
 
   return tailwind;
 }
@@ -27,7 +22,6 @@ export function getPrettierDependencies({ tailwind, framework }: PrettierOptions
   const dependencies: string[] = ['prettier', '@javalce/prettier-config'];
   const isUsingAstro = framework === 'astro';
   const plugins: string[] = [
-    '...prettierConfig.plugins',
     ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
     ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
   ];
