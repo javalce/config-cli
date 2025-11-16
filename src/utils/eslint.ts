@@ -18,7 +18,7 @@ import { handleCancellation } from './prompt';
 
 export async function getEslintOptions(): Promise<EslintOptions> {
   const framework =
-    (Object.keys(FRAMEWORK_DEPENDENCIES) as Framework[]).find((key) =>
+    (Object.keys(FRAMEWORK_DEPENDENCIES) as Array<Exclude<Framework, 'node'>>).find((key) =>
       FRAMEWORK_DEPENDENCIES[key].every((dep) => isPackageExists(dep)),
     ) ?? 'node';
 

@@ -1,6 +1,6 @@
 export type Framework =
-  | 'angular'
   | 'node'
+  | 'angular'
   | 'react'
   | 'next'
   | 'vue'

@@ -22,8 +22,7 @@ export const ESLINT_DEPENDENCIES: Record<
   'testing-library': ['eslint-plugin-testing-library'],
 };
 
-export const FRAMEWORK_DEPENDENCIES: Record<Framework, string[]> = {
-  node: [],
+export const FRAMEWORK_DEPENDENCIES: Record<Exclude<Framework, 'node'>, string[]> = {
   angular: ['@angular/core', '@angular/common'],
   react: ['react', 'react-dom'],
   next: ['next', 'react', 'react-dom'],
