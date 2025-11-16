@@ -8,6 +8,7 @@ import { isPackageExists } from 'local-pkg';
 import {
   ESLINT_DEPENDENCIES,
   FRAMEWORK_DEPENDENCIES,
+  JSX_REQUIRED_FRAMEWORKS,
   TESTING_FRAMEWORK_DEPENDENCIES,
   TESTING_LIBRARY_DEPENDENCIES,
 } from '@/constants';
@@ -75,15 +76,13 @@ export async function writeEslintConfig(
   const isESModule = isPackageTypeModule();
   const configFilename = isESModule ? 'eslint.config.js' : 'eslint.config.mjs';
 
-  const hasTsEslinConfig = await fs.exists('tsconfig.eslint.json');
-  const hasTsAppConfig = await fs.exists('tsconfig.app.json');
-  const hasTsNodeConfig = await fs.exists('tsconfig.node.json');
-
   // Construir el objeto de configuración dinámicamente
   const configObj: Record<string, unknown> = {};
 
-  if (!hasTsEslinConfig && hasTsAppConfig && hasTsNodeConfig) {
-    configObj.typescript = ['tsconfig.node.json', 'tsconfig.app.json'];
+  if (JSX_REQUIRED_FRAMEWORKS.includes(framework)) {
+    configObj.jsx = {
+      a11y: true,
+    };
   }
 
   if (framework === 'next') {

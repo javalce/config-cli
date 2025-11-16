@@ -53,3 +53,5 @@ export const TESTING_LIBRARY_DEPENDENCIES = [
   '@solidjs/testing-library',
   '@testing-library/preact',
 ];
+
+export const JSX_REQUIRED_FRAMEWORKS: Framework[] = ['react', 'preact', 'next', 'solid'];
