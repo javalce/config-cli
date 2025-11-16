@@ -2,6 +2,7 @@ export type Framework =
   | 'node'
   | 'angular'
   | 'react'
+  | 'preact'
   | 'next'
   | 'vue'
   | 'svelte'

@@ -12,6 +12,12 @@ export const ESLINT_DEPENDENCIES: Record<
     'eslint-plugin-react-refresh',
     'eslint-plugin-jsx-a11y',
   ],
+  preact: [
+    'eslint-plugin-react',
+    'eslint-plugin-react-hooks',
+    'eslint-plugin-react-refresh',
+    'eslint-plugin-jsx-a11y',
+  ],
   next: ['@next/eslint-plugin-next'],
   vue: ['eslint-plugin-vue', 'vue-eslint-parser'],
   svelte: ['eslint-plugin-svelte', 'svelte-eslint-parser'],
@@ -25,6 +31,7 @@ export const ESLINT_DEPENDENCIES: Record<
 export const FRAMEWORK_DEPENDENCIES: Record<Exclude<Framework, 'node'>, string[]> = {
   angular: ['@angular/core', '@angular/common'],
   react: ['react', 'react-dom'],
+  preact: ['preact'],
   next: ['next', 'react', 'react-dom'],
   vue: ['vue'],
   svelte: ['svelte'],

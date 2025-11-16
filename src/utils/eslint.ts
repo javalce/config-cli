@@ -33,7 +33,7 @@ export async function getEslintOptions(): Promise<EslintOptions> {
 
   const testingLibrary = TESTING_LIBRARY_DEPENDENCIES.some((dep) => isPackageExists(dep));
 
-  p.log.info(`Detected testing library: ${colors.cyan(testingLibrary ? 'yes' : 'no')}`);
+  p.log.info(`Using testing library: ${colors.cyan(testingLibrary ? 'yes' : 'no')}`);
 
   const lib = await p.confirm({
     message: 'Are you building a library?',
@@ -89,7 +89,7 @@ export async function writeEslintConfig(
   if (framework === 'next') {
     configObj.react = true;
   }
-  configObj[framework] = true;
+  configObj[framework === 'preact' ? 'react' : framework] = true;
 
   if (testing) {
     configObj.test = {
