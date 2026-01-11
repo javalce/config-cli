@@ -5,6 +5,7 @@ import colors from 'ansis';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 
+import { formatJsonFile } from './format';
 import { handleCancellation } from './prompt';
 
 const PACKAGE_MANAGERS = ['npm', 'pnpm', 'yarn', 'bun'] as const;
@@ -95,6 +96,48 @@ export async function installDependencies(deps: string[]): Promise<void> {
     spinner.stop(colors.green('Dependencies installed!'));
   } catch {
     spinner.stop(colors.red('Failed to install dependencies'));
+    handleCancellation();
+  }
+}
+
+export async function updatePackageJson(
+  lint: boolean,
+  format: boolean,
+  dryRun: boolean,
+): Promise<void> {
+  const packageJson = getPackageJson();
+
+  packageJson.scripts = {
+    ...(packageJson.scripts ?? {}),
+    ...(lint
+      ? {
+          lint: 'eslint',
+          'lint:fix': 'eslint --fix',
+        }
+      : {}),
+    ...(format
+      ? {
+          format: 'prettier --write .',
+          'format:check': 'prettier --check .',
+        }
+      : {}),
+  };
+
+  const formattedPackageJson = await formatJsonFile(JSON.stringify(packageJson));
+
+  if (dryRun) {
+    p.log.info('Updated package.json:');
+    p.note(colors.blue(formattedPackageJson));
+
+    return;
+  }
+
+  try {
+    await fs.writeFile(path.join(process.cwd(), 'package.json'), formattedPackageJson, {
+      encoding: 'utf-8',
+    });
+  } catch {
+    p.log.error('Failed to update package.json');
     handleCancellation();
   }
 }

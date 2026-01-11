@@ -5,7 +5,7 @@ import * as z from 'zod';
 
 import { confirmTailwindIntegration, detectOptions } from '@/utils/detect';
 import { getEslintDependencies, writeEslintConfig } from '@/utils/eslint';
-import { getPackageManager, installDependencies } from '@/utils/npm';
+import { getPackageManager, installDependencies, updatePackageJson } from '@/utils/npm';
 import {
   getPrettierDependencies,
   writePrettierConfig,
@@ -97,6 +97,8 @@ export const init = new Command()
         showInstallMessage = true;
       }
     }
+
+    await updatePackageJson(shouldConfigureEslint, shouldConfigurePrettier, dryRun);
 
     const shouldUpdateVscodeSettings = await p.confirm({
       message: 'Would you like to update your VSCode settings?',
