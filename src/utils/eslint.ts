@@ -88,7 +88,10 @@ export async function writeEslintConfig(
   if (framework === 'next') {
     configObj.react = true;
   }
-  configObj[framework === 'preact' ? 'react' : framework] = true;
+
+  if (framework !== 'node') {
+    configObj[framework === 'preact' ? 'react' : framework] = true;
+  }
 
   if (testing) {
     configObj.test = {
