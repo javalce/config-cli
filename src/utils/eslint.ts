@@ -1,57 +1,15 @@
-import type { EslintOptions, Framework, TestingFramework } from '@/types';
+import type { Options } from '@/types';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
-import { isPackageExists } from 'local-pkg';
 
-import {
-  ESLINT_DEPENDENCIES,
-  FRAMEWORK_DEPENDENCIES,
-  JSX_REQUIRED_FRAMEWORKS,
-  TESTING_FRAMEWORK_DEPENDENCIES,
-  TESTING_LIBRARY_DEPENDENCIES,
-} from '@/constants';
+import { ESLINT_DEPENDENCIES, JSX_REQUIRED_FRAMEWORKS } from '@/constants';
 
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
-import { handleCancellation } from './prompt';
 
-export async function getEslintOptions(): Promise<EslintOptions> {
-  const framework =
-    (Object.keys(FRAMEWORK_DEPENDENCIES) as Array<Exclude<Framework, 'node'>>).find((key) =>
-      FRAMEWORK_DEPENDENCIES[key].every((dep) => isPackageExists(dep)),
-    ) ?? 'node';
-
-  p.log.info(`Detected framework: ${colors.cyan(framework)}`);
-
-  const testing =
-    (Object.keys(TESTING_FRAMEWORK_DEPENDENCIES) as TestingFramework[]).find((key) =>
-      TESTING_FRAMEWORK_DEPENDENCIES[key].every((dep) => isPackageExists(dep)),
-    ) ?? null;
-
-  p.log.info(`Detected testing framework: ${colors.cyan(testing ?? 'none')}`);
-
-  const testingLibrary = TESTING_LIBRARY_DEPENDENCIES.some((dep) => isPackageExists(dep));
-
-  p.log.info(`Using testing library: ${colors.cyan(testingLibrary ? 'yes' : 'no')}`);
-
-  const lib = await p.confirm({
-    message: 'Are you building a library?',
-    initialValue: false,
-  });
-
-  if (p.isCancel(lib)) handleCancellation();
-
-  return {
-    framework,
-    testingLibrary,
-    testing,
-    lib,
-  };
-}
-
-export function getEslintDependencies({ framework, testing }: EslintOptions): string[] {
+export function getEslintDependencies({ framework, testing }: Options): string[] {
   const deps = new Set(['eslint', '@javalce/eslint-config']);
 
   if (framework === 'next') {
@@ -70,13 +28,12 @@ export function getEslintDependencies({ framework, testing }: EslintOptions): st
 }
 
 export async function writeEslintConfig(
-  { framework, testing, testingLibrary, lib }: EslintOptions,
+  { framework, testing, testingLibrary, lib }: Options,
   dryRun: boolean,
 ): Promise<void> {
   const isESModule = isPackageTypeModule();
   const configFilename = isESModule ? 'eslint.config.js' : 'eslint.config.mjs';
 
-  // Construir el objeto de configuración dinámicamente
   const configObj: Record<string, unknown> = {};
 
   if (JSX_REQUIRED_FRAMEWORKS.includes(framework)) {
@@ -104,7 +61,6 @@ export async function writeEslintConfig(
     configObj.type = 'lib';
   }
 
-  // Generar el contenido del archivo de configuración
   const config = `
 // @ts-check
 import { defineConfig } from '@javalce/eslint-config';

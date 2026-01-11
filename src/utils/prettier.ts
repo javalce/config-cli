@@ -3,20 +3,9 @@ import type { PrettierOptions } from '@/types';
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
-import { isPackageExists } from 'local-pkg';
 
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
-
-export function confirmTailwindIntegration(): boolean {
-  const tailwind = isPackageExists('tailwindcss');
-
-  if (tailwind) {
-    p.log.info(`Detected Tailwind CSS installation: ${colors.cyan('tailwindcss')}`);
-  }
-
-  return tailwind;
-}
 
 export function getPrettierDependencies({ tailwind, framework }: PrettierOptions): string[] {
   const dependencies: string[] = ['prettier', '@javalce/prettier-config'];

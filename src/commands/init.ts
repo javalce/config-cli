@@ -5,10 +5,10 @@ import colors from 'ansis';
 import { Command } from 'commander';
 import * as z from 'zod';
 
-import { getEslintDependencies, getEslintOptions, writeEslintConfig } from '@/utils/eslint';
+import { confirmTailwindIntegration, detectOptions } from '@/utils/detect';
+import { getEslintDependencies, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager, installDependencies } from '@/utils/npm';
 import {
-  confirmTailwindIntegration,
   getPrettierDependencies,
   writePrettierConfig,
   writePrettierignore,
@@ -62,7 +62,7 @@ export const init = new Command()
     if (shouldConfigureEslint) {
       p.log.step(colors.bgBlue(' Configuring ESLint... '));
 
-      const eslintOptions = await getEslintOptions();
+      const eslintOptions = await detectOptions();
 
       framework = eslintOptions.framework;
 
