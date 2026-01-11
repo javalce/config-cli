@@ -1,5 +1,3 @@
-import type { Framework } from '@/types';
-
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import { Command } from 'commander';
@@ -57,18 +55,16 @@ export const init = new Command()
 
     const deps: string[] = [];
     let isUsingTailwind = false;
-    let framework: Framework | null = null;
+
+    const options = await detectOptions();
+    const { framework } = options;
 
     if (shouldConfigureEslint) {
       p.log.step(colors.bgBlue(' Configuring ESLint... '));
 
-      const eslintOptions = await detectOptions();
+      deps.push(...getEslintDependencies(options));
 
-      framework = eslintOptions.framework;
-
-      deps.push(...getEslintDependencies(eslintOptions));
-
-      await writeEslintConfig(eslintOptions, dryRun);
+      await writeEslintConfig(options, dryRun);
     }
 
     if (shouldConfigurePrettier) {
