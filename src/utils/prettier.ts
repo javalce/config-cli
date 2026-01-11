@@ -38,10 +38,34 @@ export async function writePrettierConfig(
   const isESModule = isPackageTypeModule();
   const configFilename = isESModule ? 'prettier.config.js' : 'prettier.config.mjs';
   const isUsingAstro = framework === 'astro';
+  const isUsingSvelte = framework === 'svelte';
   const plugins = [
     '...prettierConfig.plugins',
     ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
+    ...(isUsingSvelte ? ['prettier-plugin-svelte'] : []),
     ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
+  ];
+  const overrides = [
+    ...(isUsingSvelte
+      ? [
+          {
+            files: ['*.svelte'],
+            options: {
+              parser: 'svelte',
+            },
+          },
+        ]
+      : []),
+    ...(isUsingAstro
+      ? [
+          {
+            files: ['*.astro'],
+            options: {
+              parser: 'astro',
+            },
+          },
+        ]
+      : []),
   ];
   const typeComment = tailwind
     ? `/** @type {import('prettier').Config & import('prettier-plugin-tailwindcss').PluginOptions} */`
@@ -64,15 +88,8 @@ export async function writePrettierConfig(
 
   configObj.plugins = plugins;
 
-  if (isUsingAstro) {
-    configObj.overrides = [
-      {
-        files: ['*.astro'],
-        options: {
-          parser: 'astro',
-        },
-      },
-    ];
+  if (overrides.length > 0) {
+    configObj.overrides = overrides;
   }
 
   const stringifiedConfigObject = Object.entries(configObj)
