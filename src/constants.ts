@@ -30,9 +30,9 @@ export const ESLINT_DEPENDENCIES: Record<
 
 export const FRAMEWORK_DEPENDENCIES: Record<Exclude<Framework, 'node'>, string[]> = {
   angular: ['@angular/core', '@angular/common'],
+  next: ['next', 'react', 'react-dom'],
   react: ['react', 'react-dom'],
   preact: ['preact'],
-  next: ['next', 'react', 'react-dom'],
   vue: ['vue'],
   svelte: ['svelte'],
   solid: ['solid-js'],
