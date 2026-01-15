@@ -110,18 +110,11 @@ export const init = new Command()
       await updateVscodeSettings(pkgManager, { tailwind: isUsingTailwind, framework }, dryRun);
     }
 
-    let doneMessage = 'Done! Now run:\n';
+    let doneMessage = 'Done! Your configuration is complete.';
 
     if (showInstallMessage) {
+      doneMessage += '\nTo install the required dependencies, run:';
       doneMessage += `\n  ${pkgManager} install`;
-    }
-
-    if (shouldConfigureEslint) {
-      doneMessage += `\n  ${pkgManager} lint`;
-    }
-
-    if (shouldConfigurePrettier) {
-      doneMessage += `\n  ${pkgManager} format`;
     }
 
     p.outro(doneMessage);
