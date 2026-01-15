@@ -1,5 +1,6 @@
-import type { PackageManager } from './npm';
 import type { PrettierOptions } from '@/types';
+
+import type { PackageManager } from './npm';
 
 import path from 'node:path';
 
@@ -26,20 +27,25 @@ function buildSettings(
   }
 
   const settings: Record<string, unknown> = {
-    'editor.formatOnSave': true,
-    'editor.defaultFormatter': 'esbenp.prettier-vscode',
     'editor.codeActionsOnSave': {
+      'source.addMissingImports.ts': 'explicit',
       'source.fixAll.eslint': 'explicit',
       'source.organizeImports': 'never',
+      'source.removeUnusedImports': 'explicit',
     },
+    'editor.defaultFormatter': 'esbenp.prettier-vscode',
+    'editor.formatOnSave': true,
     'eslint.validate': ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'],
     'explorer.fileNesting.enabled': true,
     'explorer.fileNesting.expand': false,
     'explorer.fileNesting.patterns': {
-      'tsconfig.json': 'tsconfig.*.json',
       'package.json': pkgNesting,
     },
   };
+
+  if (framework === 'svelte') {
+    (settings['eslint.validate'] as string[]).push('svelte');
+  }
 
   if (framework === 'astro') {
     (settings['eslint.validate'] as string[]).push('astro');
