@@ -15,6 +15,7 @@ export function getEslintDependencies({ framework, testing }: Options): string[]
   if (framework === 'next') {
     ESLINT_DEPENDENCIES.react.forEach((dep) => deps.add(dep));
   }
+
   ESLINT_DEPENDENCIES[framework].forEach((dep) => deps.add(dep));
 
   if (testing) {
