@@ -34,7 +34,7 @@ export const FRAMEWORK_DEPENDENCIES: Record<Exclude<Framework, 'node'>, string[]
   react: ['react', 'react-dom'],
   preact: ['preact'],
   vue: ['vue'],
-  svelte: ['svelte'],
+  svelte: ['svelte', 'svelte-check', '@sveltejs/kit'],
   solid: ['solid-js'],
   astro: ['astro'],
 };
