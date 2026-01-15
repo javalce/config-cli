@@ -13,6 +13,7 @@ import {
 } from '@/utils/prettier';
 import { handleCancellation } from '@/utils/prompt';
 import { updateVscodeSettings } from '@/utils/vscode';
+import { writeEditorConfigFile } from '@/utils/editorconfig';
 
 const optionsSchema = z.object({
   dryRun: z.boolean().default(false),
@@ -99,6 +100,8 @@ export const init = new Command()
     }
 
     await updatePackageJson(shouldConfigureEslint, shouldConfigurePrettier, dryRun);
+
+    await writeEditorConfigFile(dryRun);
 
     const shouldUpdateVscodeSettings = await p.confirm({
       message: 'Would you like to update your VSCode settings?',
