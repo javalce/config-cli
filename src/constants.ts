@@ -7,13 +7,13 @@ export const ESLINT_DEPENDENCIES: Record<
   node: [],
   angular: ['angular-eslint'],
   react: [
-    'eslint-plugin-react',
+    '@eslint-react/eslint-plugin',
     'eslint-plugin-react-hooks',
     'eslint-plugin-react-refresh',
     'eslint-plugin-jsx-a11y',
   ],
   preact: [
-    'eslint-plugin-react',
+    '@eslint-react/eslint-plugin',
     'eslint-plugin-react-hooks',
     'eslint-plugin-react-refresh',
     'eslint-plugin-jsx-a11y',
