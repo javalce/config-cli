@@ -1,70 +1,36 @@
+import type { Agent } from 'package-manager-detector';
+
 import type { PackageManager } from '@/types';
 
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import { execa } from 'execa';
-
-import { PACKAGE_MANAGERS } from '@/constants';
+import { detect } from 'package-manager-detector/detect';
 
 import { formatJsonFile } from './format';
 import { handleCancellation } from './prompt';
 
-function getPackageManagerFromPackageJson(): PackageManager | undefined {
-  const pkg = getPackageJson();
-  const packageManager = pkg.packageManager as string | undefined;
+export async function detectPackageManager(): Promise<{
+  detectedAgent: Agent;
+  agent: PackageManager;
+}> {
+  const result = await detect({
+    cwd: process.cwd(),
+    onUnknown: (packageManager) => {
+      console.warn('Unknown package manager', packageManager);
 
-  return PACKAGE_MANAGERS.find((pm) => packageManager?.startsWith(pm));
-}
+      return undefined;
+    },
+  });
 
-function getPackageManagerFromLockfiles(): PackageManager | undefined {
-  const lockfiles = {
-    'bun.lock': 'bun',
-    'bun.lockb': 'bun',
-    'pnpm-lock.yaml': 'pnpm',
-    'yarn.lock': 'yarn',
-    'package-lock.json': 'npm',
-  };
+  const detectedAgent = result?.agent ?? 'npm';
+  const [agent] = detectedAgent.split('@');
 
-  for (const [lockfile, manager] of Object.entries(lockfiles)) {
-    const file = path.join(process.cwd(), lockfile);
-
-    if (existsSync(file)) {
-      return manager as PackageManager;
-    }
-  }
-
-  return undefined;
-}
-
-function getPackageManagerFromUserAgent(): PackageManager | undefined {
-  const userAgent = process.env.npm_config_user_agent ?? '';
-
-  if (userAgent.includes('pnpm')) return 'pnpm';
-  if (userAgent.includes('yarn')) return 'yarn';
-  if (userAgent.includes('bun')) return 'bun';
-  if (userAgent.includes('npm')) return 'npm';
-
-  return undefined;
-}
-
-export function getPackageManager(): PackageManager {
-  const pmFromPackageJson = getPackageManagerFromPackageJson();
-
-  if (pmFromPackageJson) return pmFromPackageJson;
-
-  const pmFromLockfiles = getPackageManagerFromLockfiles();
-
-  if (pmFromLockfiles) return pmFromLockfiles;
-
-  const pmFromUserAgent = getPackageManagerFromUserAgent();
-
-  if (pmFromUserAgent) return pmFromUserAgent;
-
-  return 'npm';
+  return { detectedAgent, agent: agent as PackageManager };
 }
 
 export function getPackageJson(): Record<string, unknown> {
@@ -87,21 +53,14 @@ export function isPackageTypeModule(): boolean {
 }
 
 export async function installDependencies(deps: string[]): Promise<void> {
-  const packageManager = getPackageManager();
+  const { agent } = await detectPackageManager();
 
   const spinner = p.spinner();
 
   try {
     spinner.start('Installing missing dependencies...');
-    if (packageManager === 'bun') {
-      await execa(packageManager, ['add', '--dev', ...deps]);
-    } else {
-      await execa(packageManager, [
-        packageManager === 'npm' ? 'install' : 'add',
-        '--save-dev',
-        ...deps,
-      ]);
-    }
+
+    await execa(agent, [agent === 'yarn' ? 'add' : 'install', '-D', ...deps]);
 
     spinner.stop(colors.green('Dependencies installed!'));
   } catch {

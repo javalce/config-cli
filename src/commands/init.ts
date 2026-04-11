@@ -14,7 +14,7 @@ import {
 } from '@/utils/detect';
 import { writeEditorConfigFile } from '@/utils/editorconfig';
 import { getEslintDependencies, writeEslintConfig } from '@/utils/eslint';
-import { getPackageManager, installDependencies, updatePackageJson } from '@/utils/npm';
+import { detectPackageManager, installDependencies, updatePackageJson } from '@/utils/npm';
 import {
   getPrettierDependencies,
   writePrettierConfig,
@@ -38,7 +38,7 @@ export const init = new Command()
   .option('-d, --dry-run', 'Show what will be done without making any changes')
   .action(async (opts) => {
     const { dryRun } = await optionsSchema.parseAsync(opts);
-    const pkgManager = getPackageManager();
+    const { agent } = await detectPackageManager();
 
     p.intro(colors.bgCyan(' Welcome to the ESLint and Prettier configuration wizard! '));
 
@@ -132,14 +132,14 @@ export const init = new Command()
 
     if (p.isCancel(shouldUpdateVscodeSettings)) handleCancellation();
     if (shouldUpdateVscodeSettings) {
-      await updateVscodeSettings(pkgManager, finalConfig, dryRun);
+      await updateVscodeSettings(agent, finalConfig, dryRun);
     }
 
     let doneMessage = 'Done! Your configuration is complete.';
 
     if (showInstallMessage) {
       doneMessage += '\nTo install the required dependencies, run:';
-      doneMessage += `\n  ${pkgManager} install`;
+      doneMessage += `\n  ${agent} install`;
     }
 
     p.outro(doneMessage);
