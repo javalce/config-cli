@@ -34,6 +34,7 @@ export async function writePrettierConfig(
   const configFilename = isESModule ? 'prettier.config.js' : 'prettier.config.mjs';
   const isUsingAstro = framework === 'astro';
   const isUsingSvelte = framework === 'svelte';
+  const isUsingAngular = framework === 'angular';
   const plugins = [
     '...prettierConfig.plugins',
     ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
@@ -57,6 +58,16 @@ export async function writePrettierConfig(
             files: ['*.astro'],
             options: {
               parser: 'astro',
+            },
+          },
+        ]
+      : []),
+    ...(isUsingAngular
+      ? [
+          {
+            files: ['*.html'],
+            options: {
+              parser: 'angular',
             },
           },
         ]
