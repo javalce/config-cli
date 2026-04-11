@@ -35,7 +35,8 @@
     "lint:fix": "eslint . --fix",
     "prepack": "pnpm build",
     "prepare": "husky",
-    "release": "bumpp && pnpm publish"
+    "release": "bumpp && pnpm publish",
+    "typecheck": "tsc"
   },
   "lint-staged": {
     "*": "prettier --write --ignore-unknown"
