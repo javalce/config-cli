@@ -1,6 +1,4 @@
-import type { PrettierOptions } from '@/types';
-
-import type { PackageManager } from './npm';
+import type { PackageManager, PrettierOptions } from '@/types';
 
 import path from 'node:path';
 

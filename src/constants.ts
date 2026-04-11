@@ -1,4 +1,6 @@
-import type { Framework, TestingFramework } from './types';
+import type { Framework, PackageManager, TestingFramework } from './types';
+
+export const PACKAGE_MANAGERS: PackageManager[] = ['npm', 'yarn', 'pnpm', 'bun'];
 
 export const ESLINT_DEPENDENCIES: Record<
   Framework | TestingFramework | 'testing-library',

@@ -1,3 +1,5 @@
+import type { PackageManager } from '@/types';
+
 import path from 'node:path';
 
 import * as p from '@clack/prompts';
@@ -5,12 +7,10 @@ import colors from 'ansis';
 import { execa } from 'execa';
 import fs from 'fs-extra';
 
+import { PACKAGE_MANAGERS } from '@/constants';
+
 import { formatJsonFile } from './format';
 import { handleCancellation } from './prompt';
-
-const PACKAGE_MANAGERS = ['npm', 'pnpm', 'yarn', 'bun'] as const;
-
-export type PackageManager = (typeof PACKAGE_MANAGERS)[number];
 
 function getPackageManagerFromPackageJson(): PackageManager | undefined {
   const pkg = getPackageJson();
