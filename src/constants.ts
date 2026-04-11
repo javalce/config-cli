@@ -56,13 +56,11 @@ export const ESLINT_DEPENDENCIES: Record<
   react: [
     '@eslint-react/eslint-plugin@2.13.0',
     'eslint-plugin-react-hooks',
-    'eslint-plugin-react-refresh',
     'eslint-plugin-jsx-a11y',
   ],
   preact: [
     '@eslint-react/eslint-plugin@2.13.0',
     'eslint-plugin-react-hooks',
-    'eslint-plugin-react-refresh',
     'eslint-plugin-jsx-a11y',
   ],
   next: ['@next/eslint-plugin-next'],
