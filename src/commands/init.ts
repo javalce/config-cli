@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import * as z from 'zod';
 
 import { confirmTailwindIntegration, detectOptions } from '@/utils/detect';
+import { writeEditorConfigFile } from '@/utils/editorconfig';
 import { getEslintDependencies, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager, installDependencies, updatePackageJson } from '@/utils/npm';
 import {
@@ -13,7 +14,6 @@ import {
 } from '@/utils/prettier';
 import { handleCancellation } from '@/utils/prompt';
 import { updateVscodeSettings } from '@/utils/vscode';
-import { writeEditorConfigFile } from '@/utils/editorconfig';
 
 const optionsSchema = z.object({
   dryRun: z.boolean().default(false),

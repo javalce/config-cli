@@ -1,4 +1,6 @@
-import prettier, { type Options } from 'prettier';
+import type { Options } from 'prettier';
+
+import prettier from 'prettier';
 
 const prettierOptions: Options = {
   printWidth: 100,
