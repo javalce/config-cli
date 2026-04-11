@@ -4,8 +4,11 @@
     "commitMessage": "release: v${version}",
     "tagAnnotation": "v${version}"
   },
-  "hooks": {
-    "before:release": ["pnpm build"]
+  "npm": {
+    "publish": true
+  },
+  "github": {
+    "release": false
   },
   "plugins": {
     "@release-it/conventional-changelog": {
