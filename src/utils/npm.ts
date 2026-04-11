@@ -8,8 +8,8 @@ import path from 'node:path';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
-import { execa } from 'execa';
 import { detect } from 'package-manager-detector/detect';
+import { x } from 'tinyexec';
 
 import { formatJsonFile } from './format';
 import { handleCancellation } from './prompt';
@@ -60,7 +60,13 @@ export async function installDependencies(deps: string[]): Promise<void> {
   try {
     spinner.start('Installing missing dependencies...');
 
-    await execa(agent, [agent === 'yarn' ? 'add' : 'install', '-D', ...deps]);
+    x(agent, [agent === 'yarn' ? 'add' : 'install', '-D', ...deps], {
+      nodeOptions: {
+        stdio: 'inherit',
+        cwd: process.cwd(),
+      },
+      throwOnError: true,
+    });
 
     spinner.stop(colors.green('Dependencies installed!'));
   } catch {
