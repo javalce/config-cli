@@ -1,11 +1,12 @@
 import type { PackageManager } from '@/types';
 
+import { existsSync, readFileSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import { execa } from 'execa';
-import fs from 'fs-extra';
 
 import { PACKAGE_MANAGERS } from '@/constants';
 
@@ -31,7 +32,7 @@ function getPackageManagerFromLockfiles(): PackageManager | undefined {
   for (const [lockfile, manager] of Object.entries(lockfiles)) {
     const file = path.join(process.cwd(), lockfile);
 
-    if (fs.existsSync(file)) {
+    if (existsSync(file)) {
       return manager as PackageManager;
     }
   }
@@ -68,7 +69,7 @@ export function getPackageManager(): PackageManager {
 
 export function getPackageJson(): Record<string, unknown> {
   try {
-    const packageJson = fs.readFileSync(path.join(process.cwd(), 'package.json'), {
+    const packageJson = readFileSync(path.join(process.cwd(), 'package.json'), {
       encoding: 'utf-8',
     });
 
@@ -130,7 +131,7 @@ export async function updatePackageJson(dryRun: boolean): Promise<void> {
   }
 
   try {
-    await fs.writeFile(path.join(process.cwd(), 'package.json'), formattedPackageJson, {
+    await writeFile(path.join(process.cwd(), 'package.json'), formattedPackageJson, {
       encoding: 'utf-8',
     });
   } catch {

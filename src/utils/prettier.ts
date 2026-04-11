@@ -1,8 +1,10 @@
 import type { Config } from '@/types';
 
+import { existsSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
+
 import * as p from '@clack/prompts';
 import colors from 'ansis';
-import fs from 'fs-extra';
 
 import { CSS_PATHS } from '@/constants';
 
@@ -107,7 +109,7 @@ export default {
   if (dryRun) {
     p.note(colors.blue(formattedPrettierConfig));
   } else {
-    await fs.writeFile(configFilename, formattedPrettierConfig);
+    await writeFile(configFilename, formattedPrettierConfig);
   }
 
   p.log.success(colors.green(`Created ${configFilename}`));
@@ -121,9 +123,8 @@ pnpm-lock.yaml
 bun.lock
 `.trimStart();
   const ignoreFilename = '.prettierignore';
-  const ignoreExists = await fs.exists(ignoreFilename);
 
-  if (ignoreExists) {
+  if (existsSync(ignoreFilename)) {
     p.log.warn(colors.yellow(`${ignoreFilename} already exists. Skipping...`));
 
     return;
@@ -132,7 +133,7 @@ bun.lock
   if (dryRun) {
     p.note(colors.blue(ignoreContent));
   } else {
-    await fs.writeFile(ignoreFilename, ignoreContent);
+    await writeFile(ignoreFilename, ignoreContent);
   }
 
   p.log.success(colors.green(`Created ${ignoreFilename}`));

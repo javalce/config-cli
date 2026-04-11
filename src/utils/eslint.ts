@@ -1,8 +1,9 @@
 import type { Config } from '@/types';
 
+import { writeFile } from 'node:fs/promises';
+
 import * as p from '@clack/prompts';
 import colors from 'ansis';
-import fs from 'fs-extra';
 
 import { ESLINT_DEPENDENCIES, JSX_REQUIRED_FRAMEWORKS } from '@/constants';
 
@@ -75,7 +76,7 @@ export default defineConfig(${Object.keys(configObj).length ? JSON.stringify(con
   if (dryRun) {
     p.note(colors.blue(formattedEslintConfig));
   } else {
-    await fs.writeFile(configFilename, formattedEslintConfig);
+    await writeFile(configFilename, formattedEslintConfig);
   }
 
   p.log.success(colors.green(`Created ${configFilename}`));

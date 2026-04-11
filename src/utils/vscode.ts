@@ -1,10 +1,11 @@
 import type { Config, PackageManager } from '@/types';
 
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
-import fs from 'fs-extra';
 
 import { formatJsonFile } from './format';
 
@@ -65,17 +66,21 @@ export async function updateVscodeSettings(
   const vscodeDirPath = path.join(cwd, '.vscode');
   const settingsFilePath = path.join(vscodeDirPath, 'settings.json');
 
-  await fs.ensureDir(vscodeDirPath);
+  if (!existsSync(vscodeDirPath)) {
+    if (!dryRun) {
+      await mkdir(vscodeDirPath, { recursive: true });
+    }
+  }
 
   const newSettings = buildSettings(config, packageManager);
   const newSettingsContent = JSON.stringify(newSettings);
 
   let formattedSettingsContent: string;
 
-  if (!fs.existsSync(settingsFilePath)) {
+  if (!existsSync(settingsFilePath)) {
     formattedSettingsContent = await formatJsonFile(newSettingsContent);
   } else {
-    const existingSettingsContent = await fs.readFile(settingsFilePath, 'utf-8');
+    const existingSettingsContent = await readFile(settingsFilePath, 'utf-8');
     const existingSettings = JSON.parse(existingSettingsContent) as Record<string, unknown>;
     let mergedSettings = { ...existingSettings, ...newSettings };
 
@@ -109,7 +114,7 @@ export async function updateVscodeSettings(
     return;
   }
 
-  await fs.writeFile(settingsFilePath, formattedSettingsContent);
+  await writeFile(settingsFilePath, formattedSettingsContent);
 
   p.log.success(colors.green('Updated .vscode/settings.json'));
 }
