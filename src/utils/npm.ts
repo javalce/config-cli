@@ -109,27 +109,15 @@ export async function installDependencies(deps: string[]): Promise<void> {
   }
 }
 
-export async function updatePackageJson(
-  lint: boolean,
-  format: boolean,
-  dryRun: boolean,
-): Promise<void> {
+export async function updatePackageJson(dryRun: boolean): Promise<void> {
   const packageJson = getPackageJson();
 
   packageJson.scripts = {
     ...(packageJson.scripts ?? {}),
-    ...(lint
-      ? {
-          lint: 'eslint',
-          'lint:fix': 'eslint --fix',
-        }
-      : {}),
-    ...(format
-      ? {
-          format: 'prettier --write .',
-          'format:check': 'prettier --check .',
-        }
-      : {}),
+    lint: 'eslint',
+    'lint:fix': 'eslint --fix',
+    format: 'prettier --write .',
+    'format:check': 'prettier --check .',
   };
 
   const formattedPackageJson = await formatJsonFile(JSON.stringify(packageJson));

@@ -1,9 +1,17 @@
+import type { Config } from '@/types';
+
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import { Command } from 'commander';
 import * as z from 'zod';
 
-import { confirmTailwindIntegration, detectOptions } from '@/utils/detect';
+import { NORMALIZED_NAMES } from '@/constants';
+import {
+  detectFramework,
+  detectTailwind,
+  detectTestingFramework,
+  detectTestingLibrary,
+} from '@/utils/detect';
 import { writeEditorConfigFile } from '@/utils/editorconfig';
 import { getEslintDependencies, writeEslintConfig } from '@/utils/eslint';
 import { getPackageManager, installDependencies, updatePackageJson } from '@/utils/npm';
@@ -12,7 +20,12 @@ import {
   writePrettierConfig,
   writePrettierignore,
 } from '@/utils/prettier';
-import { handleCancellation } from '@/utils/prompt';
+import {
+  handleCancellation,
+  selectExtras,
+  selectFramework,
+  selectTestingFramework,
+} from '@/utils/prompt';
 import { updateVscodeSettings } from '@/utils/vscode';
 
 const optionsSchema = z.object({
@@ -38,46 +51,55 @@ export const init = new Command()
       );
     }
 
-    const selectedTools = await p.select({
-      message: 'Select the tools you want to configure',
-      options: [
-        { label: 'ESLint + Prettier', value: 'eslint-prettier' },
-        { label: 'ESLint', value: 'eslint' },
-        { label: 'Prettier', value: 'prettier' },
-      ],
-      initialValue: 'eslint-prettier',
+    const config: Config = {
+      framework: detectFramework(),
+      testingFramework: detectTestingFramework(),
+      hasTestingLibrary: detectTestingLibrary(),
+      hasTailwind: detectTailwind(),
+    };
+    let finalConfig = buildFinalConfig(config);
+
+    p.log.info(colors.cyan(formatConfig('Detected configuration:', finalConfig)));
+
+    const shouldUseConfiguration = await p.confirm({
+      message: 'Do you want to use this configuration?',
+      initialValue: true,
     });
 
-    if (p.isCancel(selectedTools)) handleCancellation();
+    if (p.isCancel(shouldUseConfiguration)) handleCancellation();
 
-    const shouldConfigureEslint = selectedTools === 'eslint-prettier' || selectedTools === 'eslint';
-    const shouldConfigurePrettier =
-      selectedTools === 'eslint-prettier' || selectedTools === 'prettier';
+    if (!shouldUseConfiguration) {
+      const framework = await selectFramework(config);
+      const testingFramework = await selectTestingFramework({ ...config, framework });
+      const extras = await selectExtras({ ...config, framework, testingFramework });
 
-    const deps: string[] = [];
-    let isUsingTailwind = false;
+      finalConfig = buildFinalConfig(config, {
+        framework,
+        testingFramework,
+        ...extras,
+      });
 
-    const options = await detectOptions();
-    const { framework } = options;
+      p.log.info(colors.cyan(formatConfig('Configuration:', finalConfig)));
 
-    if (shouldConfigureEslint) {
-      p.log.step(colors.bgBlue(' Configuring ESLint... '));
+      const confirmConfig = await p.confirm({
+        message: 'Continue with this configuration?',
+        initialValue: true,
+      });
 
-      deps.push(...getEslintDependencies(options));
+      if (p.isCancel(confirmConfig)) handleCancellation();
 
-      await writeEslintConfig(options, dryRun);
+      if (!confirmConfig) {
+        p.cancel('Configuration aborted.');
+
+        return;
+      }
     }
 
-    if (shouldConfigurePrettier) {
-      p.log.step(colors.bgBlue(' Configuring Prettier... '));
+    const deps = [...getEslintDependencies(finalConfig), ...getPrettierDependencies(finalConfig)];
 
-      isUsingTailwind = confirmTailwindIntegration();
-
-      deps.push(...getPrettierDependencies({ tailwind: isUsingTailwind, framework }));
-
-      await writePrettierConfig({ tailwind: isUsingTailwind, framework }, dryRun);
-      await writePrettierignore(dryRun);
-    }
+    await writeEslintConfig(finalConfig, dryRun);
+    await writePrettierConfig(finalConfig, dryRun);
+    await writePrettierignore(dryRun);
 
     let showInstallMessage = false;
 
@@ -99,7 +121,7 @@ export const init = new Command()
       }
     }
 
-    await updatePackageJson(shouldConfigureEslint, shouldConfigurePrettier, dryRun);
+    await updatePackageJson(dryRun);
 
     await writeEditorConfigFile(dryRun);
 
@@ -110,7 +132,7 @@ export const init = new Command()
 
     if (p.isCancel(shouldUpdateVscodeSettings)) handleCancellation();
     if (shouldUpdateVscodeSettings) {
-      await updateVscodeSettings(pkgManager, { tailwind: isUsingTailwind, framework }, dryRun);
+      await updateVscodeSettings(pkgManager, finalConfig, dryRun);
     }
 
     let doneMessage = 'Done! Your configuration is complete.';
@@ -122,3 +144,24 @@ export const init = new Command()
 
     p.outro(doneMessage);
   });
+
+function formatConfig(
+  header: string,
+  { framework, testingFramework, hasTailwind, hasTestingLibrary }: Config,
+): string {
+  const messages = [
+    `- Framework: ${NORMALIZED_NAMES[framework]}`,
+    testingFramework && `- Testing: ${NORMALIZED_NAMES[testingFramework]}`,
+    `- Styling: ${hasTailwind ? 'Yes' : 'No'}`,
+    `- Testing Library: ${hasTestingLibrary ? 'Yes' : 'No'}`,
+  ].filter(Boolean);
+
+  return [header, ...messages].join('\n');
+}
+
+function buildFinalConfig(config: Config, overrides: Partial<Config> = {}): Config {
+  return {
+    ...config,
+    ...overrides,
+  };
+}

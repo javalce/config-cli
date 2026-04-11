@@ -1,18 +1,20 @@
-import type { PrettierOptions } from '@/types';
+import type { Config } from '@/types';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 import fs from 'fs-extra';
 
+import { CSS_PATHS } from '@/constants';
+
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
 
-export function getPrettierDependencies({ tailwind, framework }: PrettierOptions): string[] {
+export function getPrettierDependencies({ framework, hasTailwind }: Config): string[] {
   const dependencies: string[] = ['prettier', '@javalce/prettier-config'];
   const isUsingAstro = framework === 'astro';
   const plugins: string[] = [
     ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
-    ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
+    ...(hasTailwind ? ['prettier-plugin-tailwindcss'] : []),
   ];
 
   dependencies.push(...plugins);
@@ -21,7 +23,7 @@ export function getPrettierDependencies({ tailwind, framework }: PrettierOptions
 }
 
 export async function writePrettierConfig(
-  { tailwind, framework }: PrettierOptions,
+  { framework, hasTailwind }: Config,
   dryRun: boolean,
 ): Promise<void> {
   const isESModule = isPackageTypeModule();
@@ -32,7 +34,7 @@ export async function writePrettierConfig(
     '...prettierConfig.plugins',
     ...(isUsingAstro ? ['prettier-plugin-astro'] : []),
     ...(isUsingSvelte ? ['prettier-plugin-svelte'] : []),
-    ...(tailwind ? ['prettier-plugin-tailwindcss'] : []),
+    ...(hasTailwind ? ['prettier-plugin-tailwindcss'] : []),
   ];
   const overrides = [
     ...(isUsingSvelte
@@ -56,26 +58,19 @@ export async function writePrettierConfig(
         ]
       : []),
   ];
-  const typeComment = tailwind
+  const typeComment = hasTailwind
     ? `/** @type {import('prettier').Config & import('prettier-plugin-tailwindcss').PluginOptions} */`
     : `/** @type {import('prettier').Config} */`;
 
-  const stylesheetPaths: Record<string, string> = {
-    next: './src/app/globals.css',
-    vue: './src/style.css',
-    svelte: './src/app.css',
-    astro: './src/styles/globals.css',
-    default: './src/index.css',
+  const tailwindStylesheetPath = CSS_PATHS[framework] ?? CSS_PATHS.default;
+
+  const configObj: Record<string, unknown> = {
+    plugins,
   };
-  const tailwindStylesheetPath = stylesheetPaths[framework!] ?? stylesheetPaths.default;
 
-  const configObj: Record<string, unknown> = {};
-
-  if (tailwind) {
+  if (hasTailwind) {
     configObj.tailwindStylesheet = tailwindStylesheetPath;
   }
-
-  configObj.plugins = plugins;
 
   if (overrides.length > 0) {
     configObj.overrides = overrides;
@@ -96,7 +91,7 @@ export async function writePrettierConfig(
     })
     .join('\n  ');
 
-  const config = `
+  const prettierConfig = `
 // @ts-check
 import prettierConfig from '@javalce/prettier-config';
 
@@ -107,12 +102,12 @@ export default {
 };
 `.trim();
 
-  const formattedConfig = await formatConfigFile(config);
+  const formattedPrettierConfig = await formatConfigFile(prettierConfig);
 
   if (dryRun) {
-    p.note(colors.blue(formattedConfig));
+    p.note(colors.blue(formattedPrettierConfig));
   } else {
-    await fs.writeFile(configFilename, formattedConfig);
+    await fs.writeFile(configFilename, formattedPrettierConfig);
   }
 
   p.log.success(colors.green(`Created ${configFilename}`));

@@ -1,4 +1,4 @@
-import type { PackageManager, PrettierOptions } from '@/types';
+import type { Config, PackageManager } from '@/types';
 
 import path from 'node:path';
 
@@ -9,7 +9,7 @@ import fs from 'fs-extra';
 import { formatJsonFile } from './format';
 
 function buildSettings(
-  { tailwind, framework }: PrettierOptions,
+  { framework, hasTailwind }: Config,
   packageManager: PackageManager,
 ): Record<string, unknown> {
   let pkgNesting = `.gitignore, *.config.js, *.config.mjs, *.config.ts, .editorconfig, .prettierignore, .node-version`;
@@ -49,7 +49,7 @@ function buildSettings(
     (settings['eslint.validate'] as string[]).push('astro');
   }
 
-  if (tailwind) {
+  if (hasTailwind) {
     settings['files.associations'] = { '*.css': 'tailwindcss' };
   }
 
@@ -58,7 +58,7 @@ function buildSettings(
 
 export async function updateVscodeSettings(
   packageManager: PackageManager,
-  options: PrettierOptions,
+  config: Config,
   dryRun: boolean,
 ): Promise<void> {
   const cwd = process.cwd();
@@ -67,7 +67,7 @@ export async function updateVscodeSettings(
 
   await fs.ensureDir(vscodeDirPath);
 
-  const newSettings = buildSettings(options, packageManager);
+  const newSettings = buildSettings(config, packageManager);
   const newSettingsContent = JSON.stringify(newSettings);
 
   let formattedSettingsContent: string;

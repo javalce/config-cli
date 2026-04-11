@@ -23,18 +23,13 @@ export interface FrameworkOptions {
 
 export interface TestingFrameworkOptions {
   label: string;
-  value: TestingFramework | null;
+  value?: TestingFramework;
   color: ColorFunc;
 }
 
-export interface Options {
+export interface Config {
   framework: Framework;
-  testing: TestingFramework | null;
-  testingLibrary: boolean;
-  lib: boolean;
-}
-
-export interface PrettierOptions {
-  tailwind: boolean;
-  framework: Framework | null;
+  testingFramework?: TestingFramework;
+  hasTestingLibrary: boolean;
+  hasTailwind: boolean;
 }
