@@ -15,7 +15,7 @@ export function getEslintDependencies({
   testingFramework,
   hasTestingLibrary,
 }: Config): string[] {
-  const deps = new Set(['eslint', '@javalce/eslint-config']);
+  const deps = new Set(['eslint@9.39.4', '@javalce/eslint-config']);
 
   if (framework === 'next') {
     ESLINT_DEPENDENCIES.react.forEach((dep) => deps.add(dep));
