@@ -10,7 +10,7 @@ import {
 
 export function detectFramework(): Framework {
   return (
-    (Object.keys(FRAMEWORK_DEPENDENCIES) as Framework[]).find((key) =>
+    (Object.keys(FRAMEWORK_DEPENDENCIES) as Array<Exclude<Framework, 'node'>>).find((key) =>
       FRAMEWORK_DEPENDENCIES[key].every((dep) => isPackageExists(dep)),
     ) ?? 'node'
   );
