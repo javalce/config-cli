@@ -1,12 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es2023",
-    "module": "preserve",
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["ESNext"],
     "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "strict": true,
-    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
+    "noEmit": true,
     "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "skipDefaultLibCheck": true,
     "skipLibCheck": true,
+    "types": ["node"],
     "paths": {
       "@/*": ["./src/*"]
     }
