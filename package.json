@@ -27,15 +27,13 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "changelog": "conventional-changelog -i CHANGELOG.md -s -t v -p angular",
     "dev": "tsx src/index.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepack": "pnpm build",
     "prepare": "husky",
-    "release": "bumpp && pnpm publish",
+    "release": "release-it",
     "typecheck": "tsc"
   },
   "lint-staged": {
@@ -57,13 +55,13 @@
     "@commitlint/types": "20.5.0",
     "@javalce/eslint-config": "0.24.2",
     "@javalce/prettier-config": "2.2.2",
+    "@release-it/conventional-changelog": "10.0.6",
     "@types/fs-extra": "11.0.4",
     "@types/node": "24.12.2",
-    "bumpp": "11.0.1",
-    "conventional-changelog-cli": "5.0.0",
     "eslint": "9.39.4",
     "husky": "9.1.7",
     "lint-staged": "16.4.0",
+    "release-it": "19.2.4",
     "tsdown": "0.21.7",
     "tsx": "4.21.0",
     "typescript": "5.9.3"
