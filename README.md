@@ -1,7 +1,7 @@
 # @javalce/config
 
-[![npm version](https://img.shields.io/npm/v/@javalce/config-cli.svg?style=flat-square&labelColor=000000)](https://www.npmjs.com/package/@javalce/config-cli)
-[![license](https://img.shields.io/npm/l/@javalce/config-cli.svg?style=flat-square&labelColor=000000)](https://github.com/javalce/config-cli/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/@javalce/config.svg?style=flat-square&labelColor=000000)](https://www.npmjs.com/package/@javalce/config-cli)
+[![license](https://img.shields.io/npm/l/@javalce/config.svg?style=flat-square&labelColor=000000)](https://github.com/javalce/config-cli/blob/main/LICENSE)
 
 CLI for bootstrapping ESLint and Prettier configurations using my custom presets.
 
