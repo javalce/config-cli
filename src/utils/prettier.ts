@@ -11,6 +11,8 @@ import { CSS_PATHS } from '@/constants';
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
 
+const PRETTIER_PLUGINS_PATTERN = /"\.\.\.prettierConfig\.plugins"/;
+
 export function getPrettierDependencies({ framework, hasTailwind }: Config): string[] {
   const dependencies: string[] = ['prettier', '@javalce/prettier-config'];
   const isUsingAstro = framework === 'astro';
@@ -84,7 +86,7 @@ export async function writePrettierConfig(
 
       if (key === 'plugins') {
         stringifiedValue = stringifiedValue.replace(
-          /"\.\.\.prettierConfig\.plugins"/,
+          PRETTIER_PLUGINS_PATTERN,
           '...prettierConfig.plugins',
         );
       }
