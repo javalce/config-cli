@@ -60,15 +60,20 @@ export async function installDependencies(deps: string[]): Promise<void> {
   try {
     spinner.start('Installing missing dependencies...');
 
-    x(agent, [agent === 'yarn' ? 'add' : 'install', '-D', ...deps], {
+    const result = await x(agent, [agent === 'yarn' ? 'add' : 'install', '-D', ...deps], {
       nodeOptions: {
-        stdio: 'inherit',
+        stdio: 'pipe',
         cwd: process.cwd(),
+        env: {
+          ...process.env,
+          FORCE_COLOR: '1',
+        },
       },
       throwOnError: true,
     });
 
     spinner.stop(colors.green('Dependencies installed!'));
+    p.log.message(result.stdout);
   } catch {
     spinner.stop(colors.red('Failed to install dependencies'));
     handleCancellation();
