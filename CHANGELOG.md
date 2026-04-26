@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1](https://github.com/javalce/config-cli/compare/v0.2.0...v0.2.1) (2026-04-26)
+
+### Bug Fixes
+
+- await result in installDependencies and log output ([a8ef4df](https://github.com/javalce/config-cli/commit/a8ef4df2e630cac63a687b3fa49150ca4de1f430))
+
 # [0.2.0](https://github.com/javalce/config-cli/compare/v0.1.1...v0.2.0) (2026-04-11)
 
 ### Bug Fixes
