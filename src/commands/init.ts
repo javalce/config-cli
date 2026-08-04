@@ -152,7 +152,7 @@ function formatConfig(
   const messages = [
     `- Framework: ${NORMALIZED_NAMES[framework]}`,
     testingFramework && `- Testing: ${NORMALIZED_NAMES[testingFramework]}`,
-    `- Styling: ${hasTailwind ? 'Yes' : 'No'}`,
+    `- Tailwind CSS: ${hasTailwind ? 'Yes' : 'No'}`,
     `- Testing Library: ${hasTestingLibrary ? 'Yes' : 'No'}`,
   ].filter(Boolean);
 
