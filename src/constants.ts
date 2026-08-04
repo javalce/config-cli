@@ -21,7 +21,6 @@ export const NORMALIZED_NAMES: Record<
   next: 'Next',
   vue: 'Vue',
   svelte: 'Svelte',
-  solid: 'SolidJS',
   astro: 'Astro',
   jest: 'Jest',
   vitest: 'Vitest',
@@ -38,7 +37,6 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   { value: 'preact', label: NORMALIZED_NAMES.preact, color: colors.blueBright },
   { value: 'vue', label: NORMALIZED_NAMES.vue, color: colors.greenBright },
   { value: 'svelte', label: NORMALIZED_NAMES.svelte, color: colors.rgb(255, 69, 0) },
-  { value: 'solid', label: NORMALIZED_NAMES.solid, color: colors.cyan },
 ];
 
 export const TESTING_FRAMEWORK_OPTIONS: TestingFrameworkOptions[] = [
@@ -58,7 +56,6 @@ export const ESLINT_DEPENDENCIES: Record<
   next: ['@next/eslint-plugin-next'],
   vue: ['eslint-plugin-vue', 'vue-eslint-parser'],
   svelte: ['eslint-plugin-svelte', 'svelte-eslint-parser'],
-  solid: ['eslint-plugin-solid'],
   astro: ['eslint-plugin-astro', 'astro-eslint-parser', 'eslint-plugin-jsx-a11y'],
   jest: ['eslint-plugin-jest'],
   vitest: ['@vitest/eslint-plugin'],
@@ -72,7 +69,6 @@ export const FRAMEWORK_DEPENDENCIES: Record<Exclude<Framework, 'node'>, string[]
   preact: ['preact'],
   vue: ['vue'],
   svelte: ['svelte', 'svelte-check', '@sveltejs/kit'],
-  solid: ['solid-js'],
   astro: ['astro'],
 };
 
@@ -91,7 +87,7 @@ export const TESTING_LIBRARY_DEPENDENCIES = [
   '@testing-library/preact',
 ];
 
-export const JSX_REQUIRED_FRAMEWORKS: Framework[] = ['react', 'preact', 'next', 'solid'];
+export const JSX_REQUIRED_FRAMEWORKS: Framework[] = ['react', 'preact', 'next'];
 
 export const CSS_PATHS: Record<string, string> = {
   next: './src/app/globals.css',

@@ -1,15 +1,7 @@
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 export type Framework =
-  | 'node'
-  | 'angular'
-  | 'react'
-  | 'preact'
-  | 'next'
-  | 'vue'
-  | 'svelte'
-  | 'solid'
-  | 'astro';
+  'node' | 'angular' | 'react' | 'preact' | 'next' | 'vue' | 'svelte' | 'astro';
 
 export type TestingFramework = 'jest' | 'vitest';
 
