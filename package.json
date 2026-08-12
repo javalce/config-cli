@@ -35,6 +35,7 @@
     "prepack": "pnpm build",
     "prepare": "simple-git-hooks",
     "release": "release-it",
+    "release:dry": "release-it --dry-run",
     "typecheck": "tsc"
   },
   "simple-git-hooks": {
