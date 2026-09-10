@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/javalce/config-cli/compare/v0.2.2...v0.2.3) (2026-09-10)
+
+### Bug Fixes
+
+- move simple-git-hooks from dependencies to devDependencies in package.json ([b4c7cd6](https://github.com/javalce/config-cli/commit/b4c7cd6de8d4a3ae8d36022db64dae859dc9f1bc))
+- update repository URL format and adjust bin path in package.json ([0835ca2](https://github.com/javalce/config-cli/commit/0835ca2e9bcfe178ed666881d80a8ae72cb69b30))
+
 ## [0.2.2](https://github.com/javalce/config-cli/compare/v0.2.1...v0.2.2) (2026-08-12)
 
 ## [0.2.1](https://github.com/javalce/config-cli/compare/v0.2.0...v0.2.1) (2026-04-26)
