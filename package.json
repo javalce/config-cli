@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/javalce/config-cli.git"
+    "url": "git+https://github.com/javalce/config-cli.git"
   },
   "license": "MIT",
   "author": "Javier Valero <javalce29@gmail.com>",
   "type": "module",
   "bin": {
-    "javalce-config": "./dist/index.mjs"
+    "javalce-config": "dist/index.mjs"
   },
   "files": [
     "dist"
