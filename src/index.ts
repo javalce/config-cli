@@ -3,8 +3,8 @@ import { Command } from 'commander';
 import { description, name, version } from '../package.json';
 import { init } from './commands/init';
 
-process.on('SIGINT', () => process.exit(0));
-process.on('SIGTERM', () => process.exit(0));
+process.on('SIGINT', () => process.exit(130));
+process.on('SIGTERM', () => process.exit(143));
 
 function main(): void {
   const program = new Command()
