@@ -1,7 +1,7 @@
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
 
 export type Framework =
-  'node' | 'angular' | 'react' | 'preact' | 'next' | 'vue' | 'svelte' | 'astro';
+  'node' | 'angular' | 'react' | 'preact' | 'next' | 'tanstack' | 'vue' | 'svelte' | 'astro';
 
 export type TestingFramework = 'jest' | 'vitest';
 
@@ -24,4 +24,6 @@ export interface Config {
   testingFramework?: TestingFramework;
   hasTestingLibrary: boolean;
   hasTailwind: boolean;
+  hasTanstackQuery: boolean;
+  hasTanstackRouter: boolean;
 }

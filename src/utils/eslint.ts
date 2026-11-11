@@ -5,8 +5,15 @@ import { writeFile } from 'node:fs/promises';
 import * as p from '@clack/prompts';
 import colors from 'ansis';
 
-import { ESLINT_DEPENDENCIES, JSX_REQUIRED_FRAMEWORKS } from '@/constants';
+import {
+  ESLINT_DEPENDENCIES,
+  JSX_REQUIRED_FRAMEWORKS,
+  TANSTACK_QUERY_ESLINT_PLUGIN,
+  TANSTACK_QUERY_FRAMEWORKS,
+  TANSTACK_ROUTER_ESLINT_PLUGIN,
+} from '@/constants';
 
+import { isTanstackRouterAvailable } from './detect';
 import { formatConfigFile } from './format';
 import { isPackageTypeModule } from './npm';
 
@@ -14,11 +21,21 @@ export function getEslintDependencies({
   framework,
   testingFramework,
   hasTestingLibrary,
+  hasTanstackQuery,
+  hasTanstackRouter,
 }: Config): string[] {
   const deps = new Set(['eslint', '@javalce/eslint-config']);
 
-  if (framework === 'next') {
+  if (framework === 'next' || framework === 'tanstack') {
     ESLINT_DEPENDENCIES.react.forEach((dep) => deps.add(dep));
+  }
+
+  if (hasTanstackRouter && isTanstackRouterAvailable(framework)) {
+    deps.add(TANSTACK_ROUTER_ESLINT_PLUGIN);
+  }
+
+  if (hasTanstackQuery && TANSTACK_QUERY_FRAMEWORKS.includes(framework)) {
+    deps.add(TANSTACK_QUERY_ESLINT_PLUGIN);
   }
 
   ESLINT_DEPENDENCIES[framework].forEach((dep) => deps.add(dep));
@@ -27,7 +44,7 @@ export function getEslintDependencies({
     ESLINT_DEPENDENCIES[testingFramework].forEach((dep) => deps.add(dep));
   }
 
-  if (hasTestingLibrary && ['react', 'next', 'vue'].includes(framework)) {
+  if (hasTestingLibrary && ['react', 'next', 'tanstack', 'vue'].includes(framework)) {
     ESLINT_DEPENDENCIES['testing-library'].forEach((dep) => deps.add(dep));
   }
 
@@ -35,7 +52,7 @@ export function getEslintDependencies({
 }
 
 export async function writeEslintConfig(
-  { framework, testingFramework, hasTestingLibrary }: Config,
+  { framework, testingFramework, hasTestingLibrary, hasTanstackQuery, hasTanstackRouter }: Config,
   dryRun: boolean,
 ): Promise<void> {
   const isESModule = isPackageTypeModule();
@@ -53,8 +70,21 @@ export async function writeEslintConfig(
     configObj.react = true;
   }
 
-  if (framework !== 'node') {
+  if (framework === 'tanstack') {
+    configObj.react = true;
+  } else if (framework !== 'node') {
     configObj[framework === 'preact' ? 'react' : framework] = true;
+  }
+
+  const useQuery = hasTanstackQuery && TANSTACK_QUERY_FRAMEWORKS.includes(framework);
+
+  const useRouter = hasTanstackRouter && isTanstackRouterAvailable(framework);
+
+  if (useRouter || useQuery) {
+    configObj.tanstack = {
+      ...(useRouter && { router: true }),
+      ...(useQuery && { query: true }),
+    };
   }
 
   if (testingFramework) {

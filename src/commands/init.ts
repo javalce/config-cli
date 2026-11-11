@@ -5,12 +5,15 @@ import colors from 'ansis';
 import { Command } from 'commander';
 import * as z from 'zod';
 
-import { NORMALIZED_NAMES } from '@/constants';
+import { NORMALIZED_NAMES, TANSTACK_QUERY_FRAMEWORKS } from '@/constants';
 import {
-  detectFramework,
+  detectFrameworks,
   detectTailwind,
+  detectTanstackQuery,
+  detectTanstackRouter,
   detectTestingFramework,
   detectTestingLibrary,
+  isTanstackRouterAvailable,
 } from '@/utils/detect';
 import { writeEditorConfigFile } from '@/utils/editorconfig';
 import { getEslintDependencies, writeEslintConfig } from '@/utils/eslint';
@@ -24,6 +27,7 @@ import {
   handleCancellation,
   selectExtras,
   selectFramework,
+  selectNextOrTanstack,
   selectTestingFramework,
 } from '@/utils/prompt';
 import { updateVscodeSettings } from '@/utils/vscode';
@@ -51,11 +55,19 @@ export const init = new Command()
       );
     }
 
+    const detectedFrameworks = detectFrameworks();
+    const framework =
+      detectedFrameworks.includes('next') && detectedFrameworks.includes('tanstack')
+        ? await selectNextOrTanstack()
+        : detectedFrameworks[0];
+
     const config: Config = {
-      framework: detectFramework(),
+      framework,
       testingFramework: detectTestingFramework(),
       hasTestingLibrary: detectTestingLibrary(),
       hasTailwind: detectTailwind(),
+      hasTanstackQuery: detectTanstackQuery(),
+      hasTanstackRouter: detectTanstackRouter(),
     };
     let finalConfig = buildFinalConfig(config);
 
@@ -145,23 +157,41 @@ export const init = new Command()
     p.outro(doneMessage);
   });
 
+function yesNo(value: boolean): string {
+  return value ? 'Yes' : 'No';
+}
+
 function formatConfig(
   header: string,
-  { framework, testingFramework, hasTailwind, hasTestingLibrary }: Config,
+  {
+    framework,
+    testingFramework,
+    hasTailwind,
+    hasTestingLibrary,
+    hasTanstackQuery,
+    hasTanstackRouter,
+  }: Config,
 ): string {
+  const routerLabel = framework === 'tanstack' ? 'Yes (required)' : yesNo(hasTanstackRouter);
   const messages = [
     `- Framework: ${NORMALIZED_NAMES[framework]}`,
     testingFramework && `- Testing: ${NORMALIZED_NAMES[testingFramework]}`,
-    `- Tailwind CSS: ${hasTailwind ? 'Yes' : 'No'}`,
-    `- Testing Library: ${hasTestingLibrary ? 'Yes' : 'No'}`,
+    `- Tailwind CSS: ${yesNo(hasTailwind)}`,
+    `- Testing Library: ${yesNo(hasTestingLibrary)}`,
+    isTanstackRouterAvailable(framework) && `- TanStack Router: ${routerLabel}`,
+    TANSTACK_QUERY_FRAMEWORKS.includes(framework) && `- TanStack Query: ${yesNo(hasTanstackQuery)}`,
   ].filter(Boolean);
 
   return [header, ...messages].join('\n');
 }
 
 function buildFinalConfig(config: Config, overrides: Partial<Config> = {}): Config {
+  const merged = { ...config, ...overrides };
+
   return {
-    ...config,
-    ...overrides,
+    ...merged,
+    hasTanstackRouter:
+      merged.framework === 'tanstack' ||
+      (isTanstackRouterAvailable(merged.framework) && merged.hasTanstackRouter),
   };
 }

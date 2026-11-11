@@ -11,7 +11,12 @@ import colors from 'ansis';
 export const PACKAGE_MANAGERS: PackageManager[] = ['npm', 'yarn', 'pnpm', 'bun'];
 
 export const NORMALIZED_NAMES: Record<
-  Framework | TestingFramework | 'tailwind' | 'testing-library',
+  | Framework
+  | TestingFramework
+  | 'tailwind'
+  | 'tanstack-query'
+  | 'tanstack-router'
+  | 'testing-library',
   string
 > = {
   node: 'Node',
@@ -19,12 +24,15 @@ export const NORMALIZED_NAMES: Record<
   react: 'React',
   preact: 'Preact',
   next: 'Next',
+  tanstack: 'TanStack Start',
   vue: 'Vue',
   svelte: 'Svelte',
   astro: 'Astro',
   jest: 'Jest',
   vitest: 'Vitest',
   tailwind: 'Tailwind CSS',
+  'tanstack-query': 'TanStack Query',
+  'tanstack-router': 'TanStack Router',
   'testing-library': 'Testing Library',
 };
 
@@ -33,6 +41,7 @@ export const FRAMEWORK_OPTIONS: FrameworkOptions[] = [
   { value: 'astro', label: NORMALIZED_NAMES.astro, color: colors.rgb(255, 127, 80) },
   { value: 'react', label: NORMALIZED_NAMES.react, color: colors.hex('#1e90ff') },
   { value: 'next', label: NORMALIZED_NAMES.next, color: colors.gray },
+  { value: 'tanstack', label: NORMALIZED_NAMES.tanstack, color: colors.yellow },
   { value: 'angular', label: NORMALIZED_NAMES.angular, color: colors.magenta },
   { value: 'preact', label: NORMALIZED_NAMES.preact, color: colors.blueBright },
   { value: 'vue', label: NORMALIZED_NAMES.vue, color: colors.greenBright },
@@ -54,6 +63,7 @@ export const ESLINT_DEPENDENCIES: Record<
   react: ['@eslint-react/eslint-plugin', 'eslint-plugin-jsx-a11y-x'],
   preact: ['@eslint-react/eslint-plugin', 'eslint-plugin-jsx-a11y-x'],
   next: ['@next/eslint-plugin-next'],
+  tanstack: [],
   vue: ['eslint-plugin-vue', 'vue-eslint-parser'],
   svelte: ['eslint-plugin-svelte', 'svelte-eslint-parser'],
   astro: ['eslint-plugin-astro', 'astro-eslint-parser', 'eslint-plugin-jsx-a11y-x'],
@@ -64,6 +74,7 @@ export const ESLINT_DEPENDENCIES: Record<
 
 export const FRAMEWORK_DEPENDENCIES: Record<Exclude<Framework, 'node'>, string[]> = {
   angular: ['@angular/core', '@angular/common'],
+  tanstack: ['@tanstack/react-start'],
   next: ['next', 'react', 'react-dom'],
   react: ['react', 'react-dom'],
   preact: ['preact'],
@@ -86,12 +97,25 @@ export const TESTING_LIBRARY_DEPENDENCIES = [
   '@testing-library/preact',
 ];
 
-export const JSX_REQUIRED_FRAMEWORKS: Framework[] = ['react', 'preact', 'next'];
+export const TANSTACK_ROUTER_PACKAGE = '@tanstack/react-router';
+export const TANSTACK_ROUTER_ESLINT_PLUGIN = '@tanstack/eslint-plugin-router';
+
+export const TANSTACK_ROUTER_FRAMEWORKS: Framework[] = ['react', 'tanstack'];
+
+export const OTHER_REACT_ROUTER_PACKAGES = ['react-router', 'react-router-dom', 'wouter'];
+
+export const TANSTACK_QUERY_PACKAGE = '@tanstack/react-query';
+export const TANSTACK_QUERY_ESLINT_PLUGIN = '@tanstack/eslint-plugin-query';
+
+export const TANSTACK_QUERY_FRAMEWORKS: Framework[] = ['react', 'next', 'tanstack'];
+
+export const JSX_REQUIRED_FRAMEWORKS: Framework[] = ['react', 'preact', 'next', 'tanstack'];
 
 export const CSS_PATHS: Record<string, string> = {
   next: './src/app/globals.css',
   vue: './src/style.css',
   svelte: './src/app.css',
   astro: './src/styles/globals.css',
+  tanstack: './src/styles.css',
   default: './src/index.css',
 };
