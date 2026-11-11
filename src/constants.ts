@@ -83,7 +83,6 @@ export const TESTING_LIBRARY_DEPENDENCIES = [
   '@testing-library/angular',
   '@testing-library/vue',
   '@testing-library/svelte',
-  '@solidjs/testing-library',
   '@testing-library/preact',
 ];
 
