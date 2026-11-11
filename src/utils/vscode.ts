@@ -143,19 +143,6 @@ export async function updateVscodeSettings(
   }
 
   if (dryRun) {
-    // Format the settings content for better readability
-    const lines = formattedSettingsContent.split('\n');
-    const pkgIdx = lines.findIndex((line) => line.includes('"package.json"'));
-    const newLocal = '*.config.js,';
-    const pkgLine = lines[pkgIdx];
-    const splitIdx = pkgLine.indexOf(newLocal) + newLocal.length;
-
-    if (splitIdx > newLocal.length - 1) {
-      lines[pkgIdx] = pkgLine.slice(0, splitIdx);
-      lines.splice(pkgIdx + 1, 0, `      ${pkgLine.slice(splitIdx)}`);
-      formattedSettingsContent = lines.join('\n');
-    }
-
     p.note(colors.blue(formattedSettingsContent));
 
     return;
