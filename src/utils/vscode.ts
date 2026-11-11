@@ -1,3 +1,5 @@
+import type { ParseError } from 'jsonc-parser';
+
 import type { Config, PackageManager } from '@/types';
 
 import { existsSync } from 'node:fs';
@@ -6,6 +8,7 @@ import path from 'node:path';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
+import { applyEdits, modify, parse } from 'jsonc-parser';
 
 import { formatJsonFile } from './format';
 
@@ -57,6 +60,53 @@ function buildSettings(
   return settings;
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function mergeSettings(existing: unknown, incoming: unknown): unknown {
+  if (isPlainObject(existing) && isPlainObject(incoming)) {
+    const merged: Record<string, unknown> = { ...existing };
+
+    for (const [key, value] of Object.entries(incoming)) {
+      merged[key] = key in existing ? mergeSettings(existing[key], value) : value;
+    }
+
+    return merged;
+  }
+
+  if (Array.isArray(existing) && Array.isArray(incoming)) {
+    return [...new Set<unknown>([...(existing as unknown[]), ...(incoming as unknown[])])];
+  }
+
+  return incoming;
+}
+
+function mergeSettingsContent(
+  existingContent: string,
+  newSettings: Record<string, unknown>,
+): string {
+  const errors: ParseError[] = [];
+  const existing = parse(existingContent, errors, { allowTrailingComma: true }) as unknown;
+
+  if (errors.length > 0 || (existing !== undefined && !isPlainObject(existing))) {
+    throw new Error('Could not parse .vscode/settings.json');
+  }
+
+  const current = isPlainObject(existing) ? existing : {};
+  let content = existingContent.trim() === '' ? '{}' : existingContent;
+
+  for (const [key, value] of Object.entries(newSettings)) {
+    const edits = modify(content, [key], mergeSettings(current[key], value), {
+      formattingOptions: { insertSpaces: true, tabSize: 2, eol: '\n' },
+    });
+
+    content = applyEdits(content, edits);
+  }
+
+  return content.endsWith('\n') ? content : `${content}\n`;
+}
+
 export async function updateVscodeSettings(
   packageManager: PackageManager,
   config: Config,
@@ -73,26 +123,23 @@ export async function updateVscodeSettings(
   }
 
   const newSettings = buildSettings(config, packageManager);
-  const newSettingsContent = JSON.stringify(newSettings);
 
   let formattedSettingsContent: string;
 
   if (!existsSync(settingsFilePath)) {
-    formattedSettingsContent = await formatJsonFile(newSettingsContent);
+    formattedSettingsContent = await formatJsonFile(JSON.stringify(newSettings));
   } else {
     const existingSettingsContent = await readFile(settingsFilePath, 'utf-8');
-    const existingSettings = JSON.parse(existingSettingsContent) as Record<string, unknown>;
-    let mergedSettings = { ...existingSettings, ...newSettings };
 
-    mergedSettings = Object.keys(mergedSettings)
-      .sort()
-      .reduce<Record<string, unknown>>((acc, key) => {
-        acc[key] = mergedSettings[key];
+    try {
+      formattedSettingsContent = mergeSettingsContent(existingSettingsContent, newSettings);
+    } catch {
+      p.log.error(
+        'Could not parse .vscode/settings.json. Fix its syntax and run the command again; it was left untouched.',
+      );
 
-        return acc;
-      }, {});
-
-    formattedSettingsContent = await formatJsonFile(JSON.stringify(mergedSettings));
+      return;
+    }
   }
 
   if (dryRun) {
