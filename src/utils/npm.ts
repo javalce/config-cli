@@ -13,7 +13,7 @@ import { detect } from 'package-manager-detector/detect';
 import { x } from 'tinyexec';
 
 import { formatJsonFile } from './format';
-import { handleCancellation } from './prompt';
+import { exitWithError, handleCancellation } from './prompt';
 
 export async function detectPackageManager(): Promise<{
   detectedAgent: Agent;
@@ -42,8 +42,7 @@ export function getPackageJson(): Record<string, unknown> {
 
     return JSON.parse(packageJson) as Record<string, unknown>;
   } catch {
-    p.log.error('The package.json file was not found');
-    handleCancellation();
+    exitWithError('The package.json file was not found');
   }
 }
 
@@ -57,8 +56,7 @@ export async function installDependencies(detectedAgent: Agent, deps: string[]):
   const resolved = resolveCommand(detectedAgent, 'add', ['-D', ...deps]);
 
   if (!resolved) {
-    p.log.error(`Could not resolve an install command for "${detectedAgent}"`);
-    handleCancellation();
+    exitWithError(`Could not resolve an install command for "${detectedAgent}"`);
   }
 
   const spinner = p.spinner();
@@ -86,26 +84,56 @@ export async function installDependencies(detectedAgent: Agent, deps: string[]):
     const output = (error as { output?: { stderr?: string; stdout?: string } }).output;
     const details = [output?.stderr, output?.stdout].map((text) => text?.trim()).find(Boolean);
 
-    p.log.error(
-      details ?? (error instanceof Error ? error.message : 'Unknown error while installing'),
-    );
     p.log.message(
       `You can install them manually with:\n  ${resolved.command} ${resolved.args.join(' ')}`,
     );
-    handleCancellation();
+    exitWithError(
+      details ?? (error instanceof Error ? error.message : 'Unknown error while installing'),
+    );
   }
 }
 
+const SCRIPTS: Record<string, string> = {
+  lint: 'eslint',
+  'lint:fix': 'eslint --fix',
+  format: 'prettier --write .',
+  'format:check': 'prettier --check .',
+};
+
 export async function updatePackageJson(dryRun: boolean): Promise<void> {
   const packageJson = getPackageJson();
+  const existingScripts = (packageJson.scripts ?? {}) as Record<string, unknown>;
+  const conflicts = Object.keys(SCRIPTS).filter(
+    (name) => name in existingScripts && existingScripts[name] !== SCRIPTS[name],
+  );
 
-  packageJson.scripts = {
-    ...(packageJson.scripts ?? {}),
-    lint: 'eslint',
-    'lint:fix': 'eslint --fix',
-    format: 'prettier --write .',
-    'format:check': 'prettier --check .',
-  };
+  let overwrite = true;
+
+  if (conflicts.length > 0) {
+    const list = conflicts.map((name) => `  ${name}: ${String(existingScripts[name])}`).join('\n');
+
+    p.log.warn(`These package.json scripts already exist with a different value:\n${list}`);
+
+    if (dryRun) {
+      p.log.info('In a real run you would be asked whether to overwrite them; showing them kept.');
+      overwrite = false;
+    } else {
+      const shouldOverwrite = await p.confirm({
+        message: 'Overwrite them? (No keeps your current scripts)',
+        initialValue: false,
+      });
+
+      if (p.isCancel(shouldOverwrite)) handleCancellation();
+
+      overwrite = shouldOverwrite;
+    }
+  }
+
+  const newScripts = Object.fromEntries(
+    Object.entries(SCRIPTS).filter(([name]) => overwrite || !conflicts.includes(name)),
+  );
+
+  packageJson.scripts = { ...existingScripts, ...newScripts };
 
   const formattedPackageJson = await formatJsonFile(JSON.stringify(packageJson));
 
@@ -121,7 +149,6 @@ export async function updatePackageJson(dryRun: boolean): Promise<void> {
       encoding: 'utf-8',
     });
   } catch {
-    p.log.error('Failed to update package.json');
-    handleCancellation();
+    exitWithError('Failed to update package.json');
   }
 }

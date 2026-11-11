@@ -6,7 +6,14 @@ import { FRAMEWORK_OPTIONS, TESTING_FRAMEWORK_OPTIONS } from '@/constants';
 
 export function handleCancellation(): never {
   p.cancel('Operation cancelled.');
-  process.exit(0);
+  process.exit(130);
+}
+
+export function exitWithError(message?: string): never {
+  if (message) p.log.error(message);
+
+  p.cancel('Operation failed.');
+  process.exit(1);
 }
 
 export async function selectFramework({ framework: defaultValue }: Config): Promise<Framework> {
