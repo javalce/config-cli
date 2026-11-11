@@ -7,3 +7,6 @@ allowBuilds:
   esbuild: true
   simple-git-hooks: true
   unrs-resolver: false
+overrides:
+  basic-ftp@<=6.2.0: 6.2.1
+  minimatch@>=7.0.0 <11.0.1: 11.0.1
