@@ -38,7 +38,7 @@ export const init = new Command()
   .option('-d, --dry-run', 'Show what will be done without making any changes')
   .action(async (opts) => {
     const { dryRun } = await optionsSchema.parseAsync(opts);
-    const { agent } = await detectPackageManager();
+    const { agent, detectedAgent } = await detectPackageManager();
 
     p.intro(colors.bgCyan(' Welcome to the ESLint and Prettier configuration wizard! '));
 
@@ -115,7 +115,7 @@ export const init = new Command()
       if (p.isCancel(shouldInstallDependencies)) handleCancellation();
 
       if (shouldInstallDependencies) {
-        await installDependencies(deps);
+        await installDependencies(detectedAgent, deps);
       } else {
         showInstallMessage = true;
       }

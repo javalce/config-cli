@@ -8,6 +8,7 @@ import path from 'node:path';
 
 import * as p from '@clack/prompts';
 import colors from 'ansis';
+import { resolveCommand } from 'package-manager-detector/commands';
 import { detect } from 'package-manager-detector/detect';
 import { x } from 'tinyexec';
 
@@ -52,15 +53,20 @@ export function isPackageTypeModule(): boolean {
   return packageJson.type === 'module';
 }
 
-export async function installDependencies(deps: string[]): Promise<void> {
-  const { agent } = await detectPackageManager();
+export async function installDependencies(detectedAgent: Agent, deps: string[]): Promise<void> {
+  const resolved = resolveCommand(detectedAgent, 'add', ['-D', ...deps]);
+
+  if (!resolved) {
+    p.log.error(`Could not resolve an install command for "${detectedAgent}"`);
+    handleCancellation();
+  }
 
   const spinner = p.spinner();
 
   try {
     spinner.start('Installing missing dependencies...');
 
-    const result = await x(agent, [agent === 'yarn' ? 'add' : 'install', '-D', ...deps], {
+    const result = await x(resolved.command, resolved.args, {
       nodeOptions: {
         stdio: 'pipe',
         cwd: process.cwd(),
@@ -74,8 +80,18 @@ export async function installDependencies(deps: string[]): Promise<void> {
 
     spinner.stop(colors.green('Dependencies installed!'));
     p.log.message(result.stdout);
-  } catch {
+  } catch (error) {
     spinner.stop(colors.red('Failed to install dependencies'));
+
+    const output = (error as { output?: { stderr?: string; stdout?: string } }).output;
+    const details = [output?.stderr, output?.stdout].map((text) => text?.trim()).find(Boolean);
+
+    p.log.error(
+      details ?? (error instanceof Error ? error.message : 'Unknown error while installing'),
+    );
+    p.log.message(
+      `You can install them manually with:\n  ${resolved.command} ${resolved.args.join(' ')}`,
+    );
     handleCancellation();
   }
 }
