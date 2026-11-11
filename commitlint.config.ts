@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-enum-assignment -- Allow use numbers for commitlint rule severity */
+
 import type { UserConfig } from '@commitlint/types';
 
 export default {
